@@ -1,24 +1,49 @@
 {
-  "templateName": "Breast Cancer",
+  "templateName": "Invasive Breast Cancer Report",
   "categories": [
     {
-      "name": "Clinical",
+      "name": "Clinical Information",
       "fields": [
-        {"label": "Specimen type", "options": ["Excision", "Core biopsy", "Mastectomy"]},
-        {"label": "Tumour site", "options": ["Upper outer quadrant","Upper inner quadrant","Lower outer quadrant","Lower inner quadrant"]},
-        {"label": "Laterality", "options": ["Left","Right","Bilateral"]},
-        {"label": "Tumour size"}
+        { "label": "Presentation Mode", "type": "select", "options": ["Screening", "Symptomatic", "Other"] },
+        { "label": "Prior Presurgical Therapy", "type": "select", "options": ["Yes", "No"] },
+        { "label": "Imaging Modality", "type": "select", "options": ["Mammography", "MRI", "Ultrasound", "None"] },
+        { "label": "Radiological Findings", "type": "select", "options": ["Single lesion", "Multiple lesions", "Calcifications", "Mass", "Architectural distortion", "None"] },
+        { "label": "Prior History of Breast Cancer", "type": "select", "options": ["Yes", "No"] }
       ]
     },
     {
-      "name": "Microscopic",
+      "name": "Operative Procedure",
       "fields": [
-        {"label": "Histologic type", "options": ["Ductal NST","Lobular","Mixed"]},
-        {"label": "Grade", "options": ["1","2","3"]},
-        {"label": "Lymphovascular invasion", "options": ["Present","Absent"]},
-        {"label": "Margins"},
-        {"label": "ER (IHC)", "options": ["Positive","Negative"]},
-        {"label": "PR (IHC)", "options": ["Positive","Negative"]}
+        { "label": "Procedure Type", "type": "select", "options": ["Excision", "Mastectomy", "Other"] },
+        { "label": "Extent by Imaging", "type": "text" },
+        { "label": "Clip Inserted", "type": "select", "options": ["Yes", "No"] },
+        { "label": "Known Genetic Predisposition", "type": "select", "options": ["Yes", "No"] }
+      ]
+    },
+    {
+      "name": "Specimen Details",
+      "fields": [
+        { "label": "Specimen Laterality", "type": "select", "options": ["Left", "Right"] },
+        { "label": "Specimen Dimensions (mm)", "type": "text" },
+        { "label": "Specimen Weight (g)", "type": "text" }
+      ]
+    },
+    {
+      "name": "Tumour Characteristics",
+      "fields": [
+        { "label": "Histological Tumour Type", "type": "select", "options": ["Invasive ductal carcinoma", "Invasive lobular carcinoma", "Tubular carcinoma", "Cribriform carcinoma", "Mucinous carcinoma", "Invasive micropapillary carcinoma", "Carcinoma with apocrine differentiation", "Metaplastic carcinoma", "Other"] },
+        { "label": "Tumour Dimensions (mm)", "type": "text" },
+        { "label": "Tumour Focality", "type": "select", "options": ["Single focus", "Multiple foci"] },
+        { "label": "Tumour Site", "type": "select", "options": ["Upper outer quadrant", "Lower outer quadrant", "Upper inner quadrant", "Lower inner quadrant", "Central", "Nipple", "Other"] },
+        { "label": "Carcinoma in Situ", "type": "select", "options": ["Not identified", "Negative for EIC", "Positive for EIC"] },
+        { "label": "Histological Tumour Grade", "type": "select", "options": ["Grade 1", "Grade 2", "Grade 3"] }
+      ]
+    },
+    {
+      "name": "Specimen Details",
+      "fields": [
+        { "label": "Specimen Dimensions (mm)", "type": "text" },
+        { "label": "Specimen Weight (g)", "type": "text" }
       ]
     }
   ]
