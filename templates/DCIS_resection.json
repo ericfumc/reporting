@@ -16,7 +16,7 @@
         { "label": "Size of DCIS", "type": "text" },
         { "label": "Architectural Patterns", "type": "text" }
         { "label": "Nuclear Grade", "type": "select", "options": ["Grade I (low)", "Grade II (intermediate)","Grade III (high)"] }
-        { "label": "Necrosis", "type": "select", "options": ["Not identified", "Present, focal (small foci or single cell necrosis)","Present, central (expansive "comedo" necrosis)"] }
+        { "label": "Necrosis", "type": "select", "options": ["Not identified", "Present, focal (small foci or single cell necrosis)","Present, central (expansive comedo necrosis)"] }
         { "label": "Microcalcifications", "type": "select", "options": ["Not identified", "Present in DCIS","Present in nonneoplastic tissue"] }
       ]
     },
