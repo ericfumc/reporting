@@ -28,3 +28,23 @@ body.light-theme {
 }
 body.light-theme textarea#preview { background: #f0f0f0; color: #212529; }
 body.light-theme input, body.light-theme select { background: #ffffff; color: #212529; border: 1px solid #ced4da; }
+
+.category-title.collapsible {
+    font-weight: 600;
+    color: #eaf8fb;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+}
+
+.category-title.collapsible:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.category-container {
+    margin-left: 12px;
+    margin-bottom: 8px;
+}
+
