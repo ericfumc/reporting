@@ -38,7 +38,7 @@ function wrapText(text, maxLen, indent = 0) {
  * @param {string} separator - Field label/value separator
  * @returns {string} - Formatted report text
  */
-function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen = 36, wrapWidth = 36, separator = ":") {
+function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen = 40, wrapWidth = 40, separator = ":") {
     const tpl = templates[templateKey];
     const diag = (diagnosisInput.value || '').trim();
     let report = '';
@@ -60,8 +60,8 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
             if (['n/a', 'not applicable', 'none', 'nil'].includes(low)) return;
 
             // Prepare aligned first line
-            const paddedLabel = (f.label + ' '.repeat(maxFieldLen)).slice(0, maxFieldLen);
-            const firstLineLabel = paddedLabel + separator;
+            const paddedLabel = (f.label + separator + ' '.repeat(maxFieldLen)).slice(0, maxFieldLen);
+            const firstLineLabel = paddedLabel;
 
             // Wrap text for the value
             const wrappedValue = wrapText(v, wrapWidth, indent);
@@ -71,13 +71,13 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
             if (wrappedLines.length === 1) {
                 catLines.push(wrappedLines.length+firstLineLabel + wrappedLines[0]);
             } else {
-                catLines.push(firstLineLabel +'1' + wrappedLines[0]);
+                catLines.push(firstLineLabel+ wrappedLines[0]);
                 catLines.push(wrappedLines.slice(1).join('\n'));
             }
         });
 
         if (catLines.length) {
-            report += cat.name.toUpperCase() + '\n' + '-'.repeat(80) + '\n' + catLines.join('\n') + '\n\n';
+            report += cat.name.toUpperCase() + '\n' + '-'.repeat(83) + '\n' + catLines.join('\n') + '\n\n';
         }
     });
 
