@@ -38,7 +38,7 @@ function wrapText(text, maxLen, indent = 0) {
  * @param {string} separator - Field label/value separator
  * @returns {string} - Formatted report text
  */
-function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen = 36, wrapWidth = 72, separator = ":") {
+function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen = 36, wrapWidth = 36, separator = ":") {
     const tpl = templates[templateKey];
     const diag = (diagnosisInput.value || '').trim();
     let report = '';
