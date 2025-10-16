@@ -23,12 +23,27 @@ button.secondary{background:transparent;color:var(--accent);border:1px solid rgb
 .category-title{font-weight:600;color:#eaf8fb;margin-top:10px;margin-bottom:6px}
 .fields-box{max-height:320px;overflow:auto;padding-right:6px}
 .small{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* Light theme */
+body.light-theme {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --muted: #6c757d;
+  --accent: #0d6efd;
+  --mono: "Courier New", Courier, monospace;
+  color: #212529;
+}
+body.light-theme textarea#preview { background: #f0f0f0; color: #212529; }
+body.light-theme input, body.light-theme select { background: #ffffff; color: #212529; border: 1px solid #ced4da; }
 </style>
 </head>
 <body>
 <div class="wrap">
-<header>
-<h1>ICCR Report Generator — Dynamic JSON Templates</h1>
+<header style="align-items:center">
+<h1>ICCR Report Generator</h1>
+<div style="margin-left:auto">
+  <button id="themeToggle" class="secondary small">Toggle Theme</button>
+</div>
 </header>
 
 <div class="card">
@@ -62,7 +77,6 @@ button.secondary{background:transparent;color:var(--accent);border:1px solid rgb
 </div>
 <textarea id="preview" readonly></textarea>
 <div style="display:flex;gap:8px;margin-top:8px">
-<button id="btnGenerate" class="secondary">Generate</button>
 <button id="btnReset" class="secondary">Reset values</button>
 </div>
 </div>
@@ -72,102 +86,106 @@ button.secondary{background:transparent;color:var(--accent);border:1px solid rgb
 </div>
 
 <script>
-// List of JSON template files
+// Template JSON files
 const templateFiles = [
-  { key: "breast", filename: "templates/breast.json" }
+  { key: "breast", filename: "templates/breast.json" },
+  { key: "colorectal", filename: "templates/colorectal.json" },
+  { key: "endometrium", filename: "templates/endometrium.json" }
 ];
 
-let templates = {};
-let currentTemplateKey;
-let fieldInputs = {};
-const maxFieldLen = 36;
-const wrapWidth = 72;
-const separator = ": ";
+let templates = {}, currentTemplateKey, fieldInputs = {};
+const maxFieldLen=36, wrapWidth=72, separator=":";
 
 const templateSelect = document.getElementById('templateSelect');
 const fieldsBox = document.getElementById('fieldsBox');
 const preview = document.getElementById('preview');
-const btnGenerate = document.getElementById('btnGenerate');
 const btnCopy = document.getElementById('btnCopy');
 const btnDownload = document.getElementById('btnDownload');
 const btnReset = document.getElementById('btnReset');
 const diagnosisInput = document.getElementById('diagnosis');
+const themeToggle = document.getElementById('themeToggle');
 
-async function loadTemplates() {
+// Load JSON templates dynamically
+async function loadTemplates(){
   for(const t of templateFiles){
     try{
       const resp = await fetch(t.filename);
-      if(!resp.ok) throw new Error("Failed to load "+t.filename);
+      if(!resp.ok) throw new Error("Failed to fetch "+t.filename);
       templates[t.key] = await resp.json();
-    } catch(e){
-      console.error("Error loading template", t.key, e);
-    }
+    } catch(e){ console.error("Error loading template", t.key, e); }
   }
   currentTemplateKey = Object.keys(templates)[0];
-  populateTemplateSelect();
-  buildFieldsUI(currentTemplateKey);
+  if(localStorage.getItem('theme')==='light') document.body.classList.add('light-theme');
+  populateTemplateSelect(); buildFieldsUI(currentTemplateKey);
 }
 
+// Populate template dropdown
 function populateTemplateSelect(){
   templateSelect.innerHTML='';
   for(const k in templates){
-    const opt = document.createElement('option');
-    opt.value = k; opt.textContent = templates[k].templateName;
+    const opt=document.createElement('option'); opt.value=k; opt.textContent=templates[k].templateName;
     templateSelect.appendChild(opt);
   }
-  templateSelect.value = currentTemplateKey;
+  templateSelect.value=currentTemplateKey;
 }
 
+// Build input fields UI
 function buildFieldsUI(templateKey){
   fieldsBox.innerHTML=''; fieldInputs={};
   const tpl = templates[templateKey];
   tpl.categories.forEach(cat=>{
-    const title = document.createElement('div');
-    title.className='category-title'; title.textContent=cat.name;
+    const title=document.createElement('div'); title.className='category-title'; title.textContent=cat.name;
     fieldsBox.appendChild(title);
     cat.fields.forEach(f=>{
-      const row = document.createElement('div'); row.className='field-row';
-      const lbl = document.createElement('label'); lbl.textContent=f.label;
+      const row=document.createElement('div'); row.className='field-row';
+      const lbl=document.createElement('label'); lbl.textContent=f.label;
 
       let input;
       if(f.options && Array.isArray(f.options)){
-        input = document.createElement('select');
-        const blankOpt = document.createElement('option'); blankOpt.value=''; blankOpt.textContent='-- Select --'; input.appendChild(blankOpt);
-        f.options.forEach(opt=>{const o=document.createElement('option'); o.value=opt; o.textContent=opt; input.appendChild(o);});
+        input=document.createElement('select');
+        const blankOpt=document.createElement('option'); blankOpt.value=''; blankOpt.textContent='-- Select --'; input.appendChild(blankOpt);
+        f.options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt; o.textContent=opt; input.appendChild(o); });
+        input.addEventListener('change', updatePreview);
       } else {
-        input = document.createElement('input'); input.type='text';
-        input.addEventListener('keydown', ev=>{if(ev.key==='Enter'){ev.preventDefault(); focusNextInput(input);}});
+        input=document.createElement('input'); input.type='text';
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); focusNextInput(input); } });
       }
 
-      input.dataset.label=f.label;
-      row.appendChild(lbl); row.appendChild(input);
-      fieldsBox.appendChild(row);
-      fieldInputs[f.label] = input;
+      input.dataset.label=f.label; row.appendChild(lbl); row.appendChild(input); fieldsBox.appendChild(row);
+      fieldInputs[f.label]=input;
     });
   });
+
+  diagnosisInput.addEventListener('input', updatePreview);
+
+  updatePreview();
 }
 
+// Focus next input
 function focusNextInput(el){
-  const keys = Object.keys(fieldInputs);
-  const idx = keys.indexOf(el.dataset.label);
-  if(idx>=0 && idx<keys.length-1){fieldInputs[keys[idx+1]].focus();}
+  const keys=Object.keys(fieldInputs);
+  const idx=keys.indexOf(el.dataset.label);
+  if(idx>=0 && idx<keys.length-1) fieldInputs[keys[idx+1]].focus();
   else diagnosisInput.focus();
 }
 
+// Wrap text with indent
 function wrapText(value,maxLen,indent){
   if(!value) return '';
   const words=value.split(/\s+/); const prefix=' '.repeat(indent); let line='',out='';
   for(let w of words){
     if(line.length===0) line=w;
-    else if(line.length+1+w.length>maxLen){out+=(out?'\n'+prefix:'')+line;line=w;}
+    else if(line.length+1+w.length>maxLen){ out+=(out?'\n'+prefix:'')+line; line=w; }
     else line+=' '+w;
   }
   if(line) out+=(out?'\n'+prefix:'')+line;
   return out;
 }
 
+// Build ICCR report
 function buildReport(templateKey){
-  const tpl = templates[templateKey]; const diag=(diagnosisInput.value||'').trim();
+  const tpl=templates[templateKey]; const diag=(diagnosisInput.value||'').trim();
   let report=''; const indent=maxFieldLen+separator.length;
   if(diag) report += 'FINAL DIAGNOSIS\n'+ '-'.repeat(15)+'\n'+diag+'\n\n';
   tpl.categories.forEach(cat=>{
@@ -179,11 +197,8 @@ function buildReport(templateKey){
       const wrappedValue=wrapText(v,wrapWidth,indent);
       const firstLineIndex=wrappedValue.indexOf('\n');
       if(firstLineIndex===-1) catLines.push(padded+separator+wrappedValue);
-      else{
-        const first=wrappedValue.slice(0,firstLineIndex);
-        const rest=wrappedValue.slice(firstLineIndex+1);
-        catLines.push(padded+separator+first);
-        catLines.push(rest);
+      else { const first=wrappedValue.slice(0,firstLineIndex); const rest=wrappedValue.slice(firstLineIndex+1);
+        catLines.push(padded+separator+first); catLines.push(rest);
       }
     });
     if(catLines.length) report+=cat.name.toUpperCase()+'\n'+ '-'.repeat(80)+'\n'+catLines.join('\n')+'\n\n';
@@ -191,24 +206,29 @@ function buildReport(templateKey){
   return report.replace(/\s+$/,'');
 }
 
+// Update preview in real-time
+function updatePreview(){ preview.value=buildReport(currentTemplateKey); }
+
 // Event listeners
-templateSelect.addEventListener('change',()=>{currentTemplateKey=templateSelect.value; buildFieldsUI(currentTemplateKey); preview.value='';});
-btnGenerate.addEventListener('click',()=>{preview.value=buildReport(currentTemplateKey);});
+templateSelect.addEventListener('change',()=>{ currentTemplateKey=templateSelect.value; buildFieldsUI(currentTemplateKey); });
 btnCopy.addEventListener('click', async()=>{
-  const text = buildReport(currentTemplateKey);
-  try{await navigator.clipboard.writeText(text); alert('Report copied to clipboard.');}
-  catch(e){alert('Copy failed. Download is still possible.');}
+  const text=buildReport(currentTemplateKey);
+  try{ await navigator.clipboard.writeText(text); alert('Report copied to clipboard'); }
+  catch(e){ alert('Copy failed'); }
 });
 btnDownload.addEventListener('click',()=>{
-  const text = buildReport(currentTemplateKey);
-  const filename = templates[currentTemplateKey].templateName.replace(/\s+/g,'_')+"_Report.txt";
-  const blob = new Blob([text],{type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  const text=buildReport(currentTemplateKey);
+  const filename=templates[currentTemplateKey].templateName.replace(/\s+/g,'_')+"_Report.txt";
+  const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 });
-btnReset.addEventListener('click',()=>{Object.values(fieldInputs).forEach(inp=>inp.value=''); diagnosisInput.value=''; preview.value='';});
+btnReset.addEventListener('click',()=>{ Object.values(fieldInputs).forEach(inp=>inp.value=''); diagnosisInput.value=''; updatePreview(); });
+themeToggle.addEventListener('click',()=>{
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('theme', document.body.classList.contains('light-theme')?'light':'dark');
+});
 
-// Load JSON templates on startup
+// Initialize
 loadTemplates();
 </script>
 </body>
