@@ -1,314 +1,262 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ICCR Report Generator</title>
-  <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#94a3b8; --accent:#06b6d4; --mono: "Courier New", Courier, monospace;
-    }
-    html,body{height:100%; margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#071025 0%, #07142b 100%); color:#e6eef6}
-    .wrap{max-width:1100px;margin:24px auto;padding:20px;}
-    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
-    h1{margin:0;font-size:20px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-    select,input,textarea,button{font-family:inherit}
-    .grid{display:grid;grid-template-columns:320px 1fr;gap:12px;margin-top:12px}
-    .left{padding-right:8px}
-    .field-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-    label{width:46%;font-size:13px;color:var(--muted)}
-    input[type="text"]{flex:1;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    textarea#preview{width:100%;height:420px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#011024;color:#dff3fb;font-family:var(--mono);font-size:13px;white-space:pre;overflow:auto}
-    .btns{display:flex;gap:8px;margin-top:10px}
-    button{background:var(--accent);color:#002; padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)}
-    .templates{display:flex;gap:8px;flex-wrap:wrap}
-    .small{font-size:12px;color:var(--muted);margin-top:6px}
-    .category-title{font-weight:600;color:#eaf8fb;margin-top:10px;margin-bottom:6px}
-    .fields-box{max-height:320px;overflow:auto;padding-right:6px}
-    .hint{font-size:12px;color:var(--muted);margin-top:8px}
-    footer{margin-top:14px;font-size:12px;color:var(--muted)}
-    @media (max-width:900px){ .grid{grid-template-columns:1fr; } label{display:block;width:100%;} }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ICCR Report Generator</title>
+<style>
+:root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--mono:"Courier New",Courier,monospace}
+html,body{height:100%;margin:0;font-family:Inter, system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071025 0%,#07142b 100%);color:#e6eef6}
+.wrap{max-width:1100px;margin:24px auto;padding:20px}
+header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+h1{margin:0;font-size:20px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+select,input,textarea,button{font-family:inherit}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:12px;margin-top:12px}
+.left{padding-right:8px}
+.field-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+label{width:46%;font-size:13px;color:var(--muted)}
+input[type="text"],select{flex:1;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+textarea#preview{width:100%;height:420px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#011024;color:#dff3fb;font-family:var(--mono);font-size:13px;white-space:pre;overflow:auto}
+.btns{display:flex;gap:8px;margin-top:10px}
+button{background:var(--accent);color:#002;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)}
+.templates{display:flex;gap:8px;flex-wrap:wrap}
+.small{font-size:12px;color:var(--muted);margin-top:6px}
+.category-title{font-weight:600;color:#eaf8fb;margin-top:10px;margin-bottom:6px}
+.fields-box{max-height:320px;overflow:auto;padding-right:6px}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+footer{margin-top:14px;font-size:12px;color:var(--muted)}
+@media (max-width:900px){.grid{grid-template-columns:1fr;}label{display:block;width:100%;}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>ICCR Report Generator — GitHub Pages edition</h1>
-        <div class="small">Client-side report builder: alignment + word-wrap, copy or download .txt</div>
-      </div>
-    </header>
+<div class="wrap">
+<header>
+<div>
+<h1>ICCR Report Generator — GitHub Pages edition</h1>
+<div class="small">Client-side report builder: alignment + word-wrap, copy or download .txt</div>
+</div>
+</header>
 
-    <div class="card">
-      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
-        <div>
-          <label for="templateSelect" class="small">Template</label><br>
-          <select id="templateSelect"></select>
-        </div>
-        <div>
-          <label class="small">Diagnosis (optional)</label><br>
-          <input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" style="width:420px"/>
-        </div>
-      </div>
+<div class="card">
+<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+<div>
+<label for="templateSelect" class="small">Template</label><br>
+<select id="templateSelect"></select>
+</div>
+<div>
+<label class="small">Diagnosis (optional)</label><br>
+<input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" style="width:420px"/>
+</div>
+</div>
 
-      <div class="grid" style="margin-top:14px">
-        <div class="left">
-          <div class="card" style="padding:12px;">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-weight:600">Fields</div>
-              <div class="small">Edit values quickly, then Generate</div>
-            </div>
+<div class="grid" style="margin-top:14px">
+<div class="left">
+<div class="card" style="padding:12px;">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-weight:600">Fields</div>
+<div class="small">Edit values quickly, then Generate</div>
+</div>
 
-            <div class="fields-box" id="fieldsBox" style="margin-top:10px"></div>
+<div class="fields-box" id="fieldsBox" style="margin-top:10px"></div>
 
-            <div class="hint">Tip: use Tab to move between inputs. Blank or 'N/A' values are skipped.</div>
-          </div>
-        </div>
+<div class="hint">Tip: Tab to move between inputs. Blank or 'N/A' values are skipped.</div>
+</div>
+</div>
 
-        <div>
-          <div class="card" style="padding:12px">
-            <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
-              <div style="font-weight:600">Report Preview</div>
-              <div style="display:flex;gap:8px">
-                <button id="btnCopy">Copy</button>
-                <button id="btnDownload" class="secondary">Download .txt</button>
-              </div>
-            </div>
+<div>
+<div class="card" style="padding:12px">
+<div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+<div style="font-weight:600">Report Preview</div>
+<div style="display:flex;gap:8px">
+<button id="btnCopy">Copy</button>
+<button id="btnDownload" class="secondary">Download .txt</button>
+</div>
+</div>
 
-            <textarea id="preview" readonly></textarea>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button id="btnGenerate" class="secondary">Generate</button>
-              <button id="btnReset" class="secondary">Reset values</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<textarea id="preview" readonly></textarea>
+<div style="display:flex;gap:8px;margin-top:8px">
+<button id="btnGenerate" class="secondary">Generate</button>
+<button id="btnReset" class="secondary">Reset values</button>
+</div>
+</div>
+</div>
+</div>
 
-      <footer>
-        <div>How to deploy: push this file to a public GitHub repo and enable GitHub Pages (Settings → Pages → Source: main / root). </div>
-      </footer>
-    </div>
-  </div>
+<footer>
+<div>Deploy: push this file to GitHub, enable Pages (Settings → Pages → Source: main / root)</div>
+</footer>
+</div>
+</div>
 
 <script>
-/*
-  ICCR Report Generator (single-file)
-  - templates: embedded below (breast, colorectal, endometrium)
-  - alignment: field labels padded to maxFieldLen
-  - wrap: wrapWidth; indent wrapped lines to align under values
-  - copy/download: clipboard API + blob
-*/
-
+// ICCR templates with options for dropdown fields
 const templates = {
-  breast: {
-    templateName: "Breast Cancer",
-    categories: [
-      { name: "Clinical", fields: [{label:"Specimen type"},{label:"Tumour site"},{label:"Laterality"},{label:"Tumour size"}] },
-      { name: "Microscopic", fields: [{label:"Histologic type"},{label:"Grade"},{label:"Lymphovascular invasion"},{label:"Margins"},{label:"ER (IHC)"},{label:"PR (IHC)"}] }
-    ]
-  },
-  colorectal: {
-    templateName: "Colorectal Cancer",
-    categories: [
-      { name: "Clinical", fields: [{label:"Specimen type"},{label:"Tumour site"},{label:"Tumour size"}] },
-      { name: "Microscopic", fields: [{label:"Histologic type"},{label:"Grade"},{label:"Lymphovascular invasion"},{label:"Perineural invasion"},{label:"Margins"}] }
-    ]
-  },
-  endometrium: {
-    templateName: "Endometrium Cancer",
-    categories: [
-      { name: "Clinical", fields: [{label:"Specimen type"},{label:"Tumour site"},{label:"Tumour size"}] },
-      { name: "Microscopic", fields: [{label:"Histologic type"},{label:"Grade"},{label:"Depth of myometrial invasion"},{label:"Lymphovascular invasion"}] }
-    ]
-  }
+breast:{
+templateName:"Breast Cancer",
+categories:[
+{ name:"Clinical", fields:[
+{label:"Specimen type", options:["Excision","Core biopsy","Mastectomy"]},
+{label:"Tumour site", options:["Upper outer quadrant","Upper inner quadrant","Lower outer quadrant","Lower inner quadrant"]},
+{label:"Laterality", options:["Left","Right","Bilateral"]},
+{label:"Tumour size"}
+]},
+{ name:"Microscopic", fields:[
+{label:"Histologic type", options:["Ductal NST","Lobular","Mixed"]},
+{label:"Grade", options:["1","2","3"]},
+{label:"Lymphovascular invasion", options:["Present","Absent"]},
+{label:"Margins"},
+{label:"ER (IHC)", options:["Positive","Negative"]},
+{label:"PR (IHC)", options:["Positive","Negative"]}
+]}
+]},
+colorectal:{
+templateName:"Colorectal Cancer",
+categories:[
+{ name:"Clinical", fields:[
+{label:"Specimen type", options:["Resection","Biopsy"]},
+{label:"Tumour site", options:["Cecum","Ascending","Transverse","Descending","Sigmoid","Rectum"]},
+{label:"Tumour size"}
+]},
+{ name:"Microscopic", fields:[
+{label:"Histologic type", options:["Adenocarcinoma, NOS","Mucinous","Signet ring"]},
+{label:"Grade", options:["Low","Intermediate","High"]},
+{label:"Lymphovascular invasion", options:["Present","Absent"]},
+{label:"Perineural invasion", options:["Present","Absent"]},
+{label:"Margins"}
+]}
+]},
+endometrium:{
+templateName:"Endometrium Cancer",
+categories:[
+{ name:"Clinical", fields:[
+{label:"Specimen type", options:["Hysterectomy","Biopsy"]},
+{label:"Tumour site"},
+{label:"Tumour size"}
+]},
+{ name:"Microscopic", fields:[
+{label:"Histologic type", options:["Endometrioid","Serous","Clear cell"]},
+{label:"Grade", options:["1","2","3"]},
+{label:"Depth of myometrial invasion"},
+{label:"Lymphovascular invasion", options:["Present","Absent"]}
+]}
+]}
 };
 
 // UI elements
-const templateSelect = document.getElementById('templateSelect');
-const fieldsBox = document.getElementById('fieldsBox');
-const preview = document.getElementById('preview');
-const btnGenerate = document.getElementById('btnGenerate');
-const btnCopy = document.getElementById('btnCopy');
-const btnDownload = document.getElementById('btnDownload');
-const btnReset = document.getElementById('btnReset');
-const diagnosisInput = document.getElementById('diagnosis');
+const templateSelect=document.getElementById('templateSelect');
+const fieldsBox=document.getElementById('fieldsBox');
+const preview=document.getElementById('preview');
+const btnGenerate=document.getElementById('btnGenerate');
+const btnCopy=document.getElementById('btnCopy');
+const btnDownload=document.getElementById('btnDownload');
+const btnReset=document.getElementById('btnReset');
+const diagnosisInput=document.getElementById('diagnosis');
 
-let currentTemplateKey = 'breast';
-let fieldInputs = {}; // map label -> DOM input
+let currentTemplateKey='breast';
+let fieldInputs={};
+const maxFieldLen=36;
+const wrapWidth=72;
+const separator=": ";
 
-// config (tweak if you want)
-const maxFieldLen = 36;   // number of characters allocated to field label area
-const wrapWidth = 72;     // max characters per wrapped line (value area)
-const separator = ": ";
+// Populate template dropdown
+function populateTemplateSelect(){
+for(const k in templates){
+const opt=document.createElement('option');
+opt.value=k; opt.textContent=templates[k].templateName;
+templateSelect.appendChild(opt);
+}
+templateSelect.value=currentTemplateKey;
+}
+
+// Build fields UI
+function buildFieldsUI(templateKey){
+fieldsBox.innerHTML=''; fieldInputs={};
+const tpl=templates[templateKey];
+tpl.categories.forEach(cat=>{
+const title=document.createElement('div'); title.className='category-title'; title.textContent=cat.name;
+fieldsBox.appendChild(title);
+cat.fields.forEach(f=>{
+const row=document.createElement('div'); row.className='field-row';
+const lbl=document.createElement('label'); lbl.textContent=f.label;
+let input;
+if(f.options && Array.isArray(f.options)){
+input=document.createElement('select');
+const blankOption=document.createElement('option'); blankOption.value=''; blankOption.textContent='-- Select --'; input.appendChild(blankOption);
+f.options.forEach(opt=>{const o=document.createElement('option'); o.value=opt; o.textContent=opt; input.appendChild(o);});
+}else{
+input=document.createElement('input'); input.type='text'; input.placeholder='';
+input.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();focusNextInput(input);}});
+}
+input.dataset.label=f.label;
+row.appendChild(lbl); row.appendChild(input);
+fieldsBox.appendChild(row);
+fieldInputs[f.label]=input;
+});
+});
+}
+
+// focus next input
+function focusNextInput(el){
+const keys=Object.keys(fieldInputs);
+const idx=keys.indexOf(el.dataset.label);
+if(idx>=0 && idx<keys.length-1){fieldInputs[keys[idx+1]].focus();} else {diagnosisInput.focus();}
+}
+
+// wrap text function
+function wrapText(value,maxLen,indent){
+if(!value) return '';
+const words=value.split(/\s+/); const prefix=' '.repeat(indent); let line=''; let out='';
+for(let w of words){
+if(line.length===0){line=w;} else if((line.length+1+w.length)>maxLen){out+=(out?'\n'+prefix:'')+line;line=w;} else {line+=' '+w;}
+} if(line) out+=(out?'\n'+prefix:'')+line;
+return out;
+}
+
+// build report
+function buildReport(templateKey){
+const tpl=templates[templateKey]; const diag=(diagnosisInput.value||'').trim();
+let report=''; const indent=maxFieldLen+separator.length;
+if(diag){report+='FINAL DIAGNOSIS\n'+ '-'.repeat(15)+'\n'+diag+'\n\n';}
+tpl.categories.forEach(cat=>{
+const catLines=[];
+cat.fields.forEach(f=>{
+const v=(fieldInputs[f.label].value||'').trim();
+if(!v) return; const low=v.toLowerCase(); if(['n/a','not applicable','none','nil'].includes(low)) return;
+const padded=(f.label+' '.repeat(maxFieldLen)).slice(0,maxFieldLen);
+const wrappedValue=wrapText(v,wrapWidth,indent);
+const firstLineIndex=wrappedValue.indexOf('\n');
+if(firstLineIndex===-1){catLines.push(padded+separator+wrappedValue);}
+else{
+const first=wrappedValue.slice(0,firstLineIndex);
+const rest=wrappedValue.slice(firstLineIndex+1);
+catLines.push(padded+separator+first);
+catLines.push(rest);
+}
+});
+if(catLines.length){report+=cat.name.toUpperCase()+'\n'+ '-'.repeat(80)+'\n'+catLines.join('\n')+'\n\n';}
+});
+return report.replace(/\s+$/,'');
+}
+
+// UI events
+templateSelect.addEventListener('change',()=>{currentTemplateKey=templateSelect.value; buildFieldsUI(currentTemplateKey); preview.value='';});
+btnGenerate.addEventListener('click',()=>{preview.value=buildReport(currentTemplateKey);});
+btnCopy.addEventListener('click',async()=>{
+const text=buildReport(currentTemplateKey);
+try{await navigator.clipboard.writeText(text); alert('Report copied to clipboard.');} catch(e){alert('Copy failed. Download is still possible.');}
+});
+btnDownload.addEventListener('click',()=>{
+const text=buildReport(currentTemplateKey);
+const filename=templates[currentTemplateKey].templateName.replace(/\s+/g,'_')+"_Report.txt";
+const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+btnReset.addEventListener('click',()=>{Object.values(fieldInputs).forEach(inp=>inp.value=''); diagnosisInput.value=''; preview.value='';});
 
 // init
-function populateTemplateSelect(){
-  for(const k of Object.keys(templates)){
-    const opt = document.createElement('option');
-    opt.value = k; opt.textContent = templates[k].templateName;
-    templateSelect.appendChild(opt);
-  }
-  templateSelect.value = currentTemplateKey;
-}
-function buildFieldsUI(templateKey){
-  fieldsBox.innerHTML = '';
-  fieldInputs = {};
-  const tpl = templates[templateKey];
-  tpl.categories.forEach(cat => {
-    const title = document.createElement('div');
-    title.className = 'category-title';
-    title.textContent = cat.name;
-    fieldsBox.appendChild(title);
-
-    cat.fields.forEach(f => {
-      const row = document.createElement('div');
-      row.className = 'field-row';
-      const lbl = document.createElement('label');
-      lbl.textContent = f.label;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.dataset.label = f.label;
-      input.placeholder = '';
-      // quick keyboard: Enter to move to next input
-      input.addEventListener('keydown', (ev)=>{
-        if(ev.key === 'Enter'){ ev.preventDefault(); focusNextInput(input); }
-      });
-      row.appendChild(lbl);
-      row.appendChild(input);
-      fieldsBox.appendChild(row);
-      fieldInputs[f.label] = input;
-    });
-  });
-}
-
-// focus next input helper
-function focusNextInput(el){
-  const keys = Object.keys(fieldInputs);
-  const idx = keys.indexOf(el.dataset.label);
-  if(idx >= 0 && idx < keys.length - 1){
-    fieldInputs[keys[idx+1]].focus();
-  } else {
-    diagnosisInput.focus();
-  }
-}
-
-// text wrapping: do not split words. indent wrapped lines with 'indent' spaces (prefix)
-function wrapText(value, maxLen, indent){
-  if(!value) return '';
-  const words = value.split(/\s+/);
-  const prefix = ' '.repeat(indent);
-  let line = '';
-  let out = '';
-  for(let w of words){
-    if(line.length === 0){
-      line = w;
-    } else if((line.length + 1 + w.length) > maxLen){
-      out += (out ? '\n' + prefix : '') + line;
-      line = w;
-    } else {
-      line += ' ' + w;
-    }
-  }
-  if(line){
-    out += (out ? '\n' + prefix : '') + line;
-  }
-  return out;
-}
-
-// build report text from template + values
-function buildReport(templateKey){
-  const tpl = templates[templateKey];
-  const diag = (diagnosisInput.value || '').trim();
-  let report = '';
-  const indent = maxFieldLen + separator.length;
-
-  if(diag){
-    report += 'FINAL DIAGNOSIS\n' + '-'.repeat(15) + '\n' + diag + '\n\n';
-  }
-
-  tpl.categories.forEach(cat => {
-    // collect lines for this category
-    const catLines = [];
-    cat.fields.forEach(f => {
-      const v = (fieldInputs[f.label].value || '').trim();
-      if(!v) return;
-      const low = v.toLowerCase();
-      if(['n/a','not applicable','none','nil'].includes(low)) return;
-      // prepare padded field label
-      const padded = (f.label + ' '.repeat(maxFieldLen)).slice(0, maxFieldLen);
-      // wrap value with indent matching padded label + separator
-      const wrapIndent = indent;
-      const wrappedValue = wrapText(v, wrapWidth, wrapIndent);
-      // combine: fieldLabel + separator + first line of wrappedValue
-      // but wrappedValue already includes indentation on subsequent lines
-      const firstLineIndex = wrappedValue.indexOf('\n');
-      if(firstLineIndex === -1){
-        catLines.push(padded + separator + wrappedValue);
-      } else {
-        const first = wrappedValue.slice(0, firstLineIndex);
-        const rest = wrappedValue.slice(firstLineIndex + 1);
-        catLines.push(padded + separator + first);
-        // rest already has indentation prefix; append as separate lines
-        // but ensure rest lines are appended exactly (they already have prefix spaces)
-        // we'll join with newline and include rest as-is
-        catLines.push(rest);
-      }
-    });
-
-    if(catLines.length){
-      report += cat.name.toUpperCase() + '\n' + '-'.repeat(80) + '\n' + catLines.join('\n') + '\n\n';
-    }
-  });
-
-  // trim trailing whitespace
-  return report.replace(/\s+$/,'');
-}
-
-// UI actions
-templateSelect.addEventListener('change', ()=>{
-  currentTemplateKey = templateSelect.value;
-  buildFieldsUI(currentTemplateKey);
-  preview.value = '';
-});
-btnGenerate.addEventListener('click', ()=>{
-  preview.value = buildReport(currentTemplateKey);
-});
-btnCopy.addEventListener('click', async ()=>{
-  const text = buildReport(currentTemplateKey);
-  try {
-    await navigator.clipboard.writeText(text);
-    alert('Report copied to clipboard.');
-  } catch (e){
-    alert('Copy failed. You can still download the file.');
-  }
-});
-btnDownload.addEventListener('click', ()=>{
-  const text = buildReport(currentTemplateKey);
-  const filename = templates[currentTemplateKey].templateName.replace(/\s+/g,'_') + "_Report.txt";
-  const blob = new Blob([text], {type: 'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-});
-btnReset.addEventListener('click', ()=>{
-  Object.values(fieldInputs).forEach(inp => inp.value = '');
-  diagnosisInput.value = '';
-  preview.value = '';
-});
-
-// init page
-populateTemplateSelect();
-buildFieldsUI(currentTemplateKey);
-
-// optional: generate preview on load for testing
-// preview.value = buildReport(currentTemplateKey);
+populateTemplateSelect(); buildFieldsUI(currentTemplateKey);
 </script>
 </body>
 </html>
