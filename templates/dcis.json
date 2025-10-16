@@ -5,7 +5,7 @@
       "name": "SPECIMEN",
       "fields": [
         { "label": "Procedure", "type": "select", "options": ["Excision", "Total mastectomy", "Other (specify):"] },
-        { "label": "Specimen Laterality", "type": "select", "options": ["Right", "Left","Not specified"] },
+        { "label": "Specimen Laterality", "type": "select", "options": ["Right", "Left","Not specified"] }
       ]
     },
     {
@@ -17,7 +17,7 @@
         { "label": "Architectural Patterns", "type": "text" },
         { "label": "Nuclear Grade", "type": "select", "options": ["Grade I (low)", "Grade II (intermediate)","Grade III (high)"] },
         { "label": "Necrosis", "type": "select", "options": ["Not identified", "Present, focal (small foci or single cell necrosis)","Present, central (expansive comedo necrosis)"] },
-        { "label": "Microcalcifications", "type": "select", "options": ["Not identified", "Present in DCIS","Present in nonneoplastic tissue"] },
+        { "label": "Microcalcifications", "type": "select", "options": ["Not identified", "Present in DCIS","Present in nonneoplastic tissue"] }
       ]
     },
     {
@@ -25,7 +25,7 @@
       "fields": [
         { "label": "Margin Status", "type": "select", "options": ["All margins negative for DCIS", "DCIS present at margin"] },
         { "label": "Distance from DCIS to Closest Margin", "type": "text" },
-        { "label": "Margin involved by DCIS", "type": "text" },
+        { "label": "Margin involved by DCIS", "type": "text" }
       ]
     }
   ]
