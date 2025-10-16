@@ -10,7 +10,7 @@ function wrapText(value,maxLen,indent){
   return out;
 }
 
-function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen=36, wrapWidth=72, separator=":"){
+function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen=36, wrapWidth=72, separator="-"){
   const tpl=templates[templateKey]; const diag=(diagnosisInput.value||'').trim();
   let report=''; const indent=maxFieldLen+separator.length;
   if(diag) report += 'FINAL DIAGNOSIS\n'+ '-'.repeat(15)+'\n'+diag+'\n\n';
