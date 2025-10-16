@@ -1,7 +1,7 @@
 // Template JSON files
 const templateFiles = [
   { key: "breast", filename: "templates/breast.json"},
-  { key: "DCIS_resection", filename: "templates/DCIS_resection.json" }
+  { key: "DCIS_resection", filename: "templates/DCIS.json"}
 ];
 
 let templates={}, currentTemplateKey, fieldInputs={};
