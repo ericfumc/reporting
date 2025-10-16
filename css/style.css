@@ -48,3 +48,25 @@ body.light-theme input, body.light-theme select { background: #ffffff; color: #2
     margin-bottom: 8px;
 }
 
+.fields-box {
+    max-height: 400px;   /* increased height if many fields */
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-bottom: 12px;
+}
+
+textarea#preview {
+    width: 100%;
+    height: 300px;       /* adjust as needed */
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: #011024;
+    color: #dff3fb;
+    font-family: var(--mono);
+    font-size: 13px;
+    white-space: pre;
+    overflow:auto;
+}
+
+
