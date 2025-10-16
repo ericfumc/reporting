@@ -71,7 +71,7 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
             if (wrappedLines.length === 1) {
                 catLines.push(firstLineLabel + wrappedLines[0]);
             } else {
-                catLines.push(firstLineLabel + wrappedLines[0]);
+                catLines.push(firstLineLabel +'1' + wrappedLines[0]);
                 catLines.push(wrappedLines.slice(1).join('\n'));
             }
         });
