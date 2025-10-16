@@ -40,34 +40,73 @@ function populateTemplateSelect(){
 }
 
 function buildFieldsUI(templateKey){
-  fieldsBox.innerHTML=''; fieldInputs={};
-  const tpl=templates[templateKey];
-  tpl.categories.forEach(cat=>{
-    const title=document.createElement('div'); title.className='category-title'; title.textContent=cat.name;
-    fieldsBox.appendChild(title);
-    cat.fields.forEach(f=>{
-      const row=document.createElement('div'); row.className='field-row';
-      const lbl=document.createElement('label'); lbl.textContent=f.label;
+    fieldsBox.innerHTML = '';
+    fieldInputs = {};
+    const tpl = templates[templateKey];
 
-      let input;
-      if(f.options && Array.isArray(f.options)){
-        input=document.createElement('select');
-        const blankOpt=document.createElement('option'); blankOpt.value=''; blankOpt.textContent='-- Select --'; input.appendChild(blankOpt);
-        f.options.forEach(opt=>{ const o=document.createElement('option'); o.value=opt; o.textContent=opt; input.appendChild(o); });
-        input.addEventListener('change', updatePreview);
-      } else {
-        input=document.createElement('input'); input.type='text';
-        input.addEventListener('input', updatePreview);
-        input.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); focusNextInput(input); } });
-      }
+    tpl.categories.forEach(cat => {
+        // Create category header
+        const catHeader = document.createElement('div');
+        catHeader.className = 'category-title collapsible';
+        catHeader.textContent = cat.name;
+        catHeader.style.cursor = 'pointer';
+        
+        // Container for fields
+        const catContainer = document.createElement('div');
+        catContainer.className = 'category-container';
+        catContainer.style.display = 'block'; // start expanded
 
-      input.dataset.label=f.label; row.appendChild(lbl); row.appendChild(input); fieldsBox.appendChild(row);
-      fieldInputs[f.label]=input;
+        // Toggle on click
+        catHeader.addEventListener('click', () => {
+            if(catContainer.style.display === 'none') catContainer.style.display = 'block';
+            else catContainer.style.display = 'none';
+        });
+
+        // Add fields to container
+        cat.fields.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'field-row';
+
+            const lbl = document.createElement('label');
+            lbl.textContent = f.label;
+
+            let input;
+            if(f.options && Array.isArray(f.options)){
+                input = document.createElement('select');
+                const blankOpt = document.createElement('option');
+                blankOpt.value = '';
+                blankOpt.textContent = '-- Select --';
+                input.appendChild(blankOpt);
+                f.options.forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    o.textContent = opt;
+                    input.appendChild(o);
+                });
+                input.addEventListener('change', updatePreview);
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('keydown', ev => { 
+                    if(ev.key==='Enter'){ ev.preventDefault(); focusNextInput(input); } 
+                });
+            }
+
+            input.dataset.label = f.label;
+            row.appendChild(lbl);
+            row.appendChild(input);
+            catContainer.appendChild(row);
+            fieldInputs[f.label] = input;
+        });
+
+        // Append category header + container
+        fieldsBox.appendChild(catHeader);
+        fieldsBox.appendChild(catContainer);
     });
-  });
 
-  diagnosisInput.addEventListener('input', updatePreview);
-  updatePreview();
+    diagnosisInput.addEventListener('input', updatePreview);
+    updatePreview();
 }
 
 function focusNextInput(el){
