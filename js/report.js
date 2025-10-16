@@ -22,7 +22,7 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
       const padded=(f.label+' '.repeat(maxFieldLen)).slice(0,maxFieldLen);
       const wrappedValue=wrapText(v,wrapWidth,indent);
       const firstLineIndex=wrappedValue.indexOf('\n');
-      if(firstLineIndex===-1) catLines.push(padded+separator+wrappedValue);
+      if(firstLineIndex===-1) catLines.push(separator+padded+wrappedValue);
       else { const first=wrappedValue.slice(0,firstLineIndex); const rest=wrappedValue.slice(firstLineIndex+1);
         catLines.push(padded+separator+first); catLines.push(rest);
       }
