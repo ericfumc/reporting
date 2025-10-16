@@ -22,9 +22,9 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
       const padded=(f.label+' '.repeat(maxFieldLen)).slice(0,maxFieldLen);
       const wrappedValue=wrapText(v,wrapWidth,indent);
       const firstLineIndex=wrappedValue.indexOf('\n');
-      if(firstLineIndex===-1) catLines.push(separator+padded+wrappedValue);
+      if(firstLineIndex===-1) catLines.push(padded+separator+wrappedValue);
       else { const first=wrappedValue.slice(0,firstLineIndex); const rest=wrappedValue.slice(firstLineIndex+1);
-        catLines.push(separator+padded+first); catLines.push(rest);
+        catLines.push(padded+separator+first); catLines.push(rest);
       }
     });
     if(catLines.length) report+=cat.name.toUpperCase()+'\n'+ '-'.repeat(80)+'\n'+catLines.join('\n')+'\n\n';
