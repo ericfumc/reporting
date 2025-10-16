@@ -10,7 +10,7 @@ function wrapText(value,maxLen,indent){
   return out;
 }
 
-function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen=36, wrapWidth=72, separator="-"){
+function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFieldLen=36, wrapWidth=72, separator=":"){
   const tpl=templates[templateKey]; const diag=(diagnosisInput.value||'').trim();
   let report=''; const indent=maxFieldLen+separator.length;
   if(diag) report += 'FINAL DIAGNOSIS\n'+ '-'.repeat(15)+'\n'+diag+'\n\n';
@@ -24,7 +24,7 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
       const firstLineIndex=wrappedValue.indexOf('\n');
       if(firstLineIndex===-1) catLines.push(padded+wrappedValue);
       else { const first=wrappedValue.slice(0,firstLineIndex); const rest=wrappedValue.slice(firstLineIndex+1);
-        catLines.push(padded+separator+first); catLines.push(rest);
+        catLines.push(padded+first); catLines.push(rest);
       }
     });
     if(catLines.length) report+=cat.name.toUpperCase()+'\n'+ '-'.repeat(80)+'\n'+catLines.join('\n')+'\n\n';
