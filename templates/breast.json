@@ -1,0 +1,25 @@
+{
+  "templateName": "Breast Cancer",
+  "categories": [
+    {
+      "name": "Clinical",
+      "fields": [
+        {"label": "Specimen type", "options": ["Excision", "Core biopsy", "Mastectomy"]},
+        {"label": "Tumour site", "options": ["Upper outer quadrant","Upper inner quadrant","Lower outer quadrant","Lower inner quadrant"]},
+        {"label": "Laterality", "options": ["Left","Right","Bilateral"]},
+        {"label": "Tumour size"}
+      ]
+    },
+    {
+      "name": "Microscopic",
+      "fields": [
+        {"label": "Histologic type", "options": ["Ductal NST","Lobular","Mixed"]},
+        {"label": "Grade", "options": ["1","2","3"]},
+        {"label": "Lymphovascular invasion", "options": ["Present","Absent"]},
+        {"label": "Margins"},
+        {"label": "ER (IHC)", "options": ["Positive","Negative"]},
+        {"label": "PR (IHC)", "options": ["Positive","Negative"]}
+      ]
+    }
+  ]
+}
