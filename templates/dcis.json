@@ -24,7 +24,7 @@
       "name": "MARGINS",
       "fields": [
         { "label": "Margin Status", "type": "select", "options": ["All margins negative for DCIS", "DCIS present at margin"] },
-        { "label": "Distance from DCIS to Closest Margin", "type": "text" },
+        { "label": "  Margin Clearance", "type": "text" },
         { "label": "Margin involved by DCIS", "type": "text" }
       ]
     }
