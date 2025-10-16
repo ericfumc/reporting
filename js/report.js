@@ -42,7 +42,7 @@ function buildReport(templateKey, templates, fieldInputs, diagnosisInput, maxFie
     const tpl = templates[templateKey];
     const diag = (diagnosisInput.value || '').trim();
     let report = '';
-    const indent = maxFieldLen + separator.length;
+    const indent = 40;
 
     // Optional final diagnosis
     if (diag) {
