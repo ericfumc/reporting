@@ -7,43 +7,68 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="wrap">
-  <header style="display:flex;gap:16px;align-items:center;margin-bottom:18px;">
-    <h1>Cancer Reporting and Biomarker Reporting</h1>
-    <div style="margin-left:auto">
-      <button id="themeToggle" class="secondary small">Toggle Theme</button>
-    </div>
-  </header>
-
-  <div class="card" style="margin-bottom:12px;">
-    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div>
-        <label for="templateSelect" class="small">Template</label><br>
-        <select id="templateSelect"></select>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">ICCR</div>
+      <nav>
+        <button class="nav-item active" data-section="home">
+          <i class="icon">🏠</i>
+          <span>Home</span>
+        </button>
+        <button class="nav-item" data-section="templates">
+          <i class="icon">📋</i>
+          <span>Templates</span>
+        </button>
+        <button class="nav-item" data-section="settings">
+          <i class="icon">⚙️</i>
+          <span>Settings</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="themeToggle" class="nav-item">
+          <i class="icon">🌗</i>
+          <span>Theme</span>
+        </button>
       </div>
-      <div>
-        <label class="small">Accession number</label><br>
-        <input id="diagnosis" type="text" placeholder="" style="width:420px"/>
-      </div>
-    </div>
+    </aside>
 
-    <div class="fields-box" id="fieldsBox"></div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header>
+        <h1>ICCR Report Generator</h1>
+      </header>
 
-    <div style="margin-top:16px;">
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div style="font-weight:600">Report Preview</div>
-        <div style="display:flex;gap:8px">
-          <button id="btnCopy">Copy</button>
-          <button id="btnDownload" class="secondary">Download .txt</button>
-          <button id="btnReset" class="secondary">Reset values</button>
+      <div class="card">
+        <div class="template-bar">
+          <div>
+            <label for="templateSelect">Template</label>
+            <select id="templateSelect"></select>
+          </div>
+          <div>
+            <label>Diagnosis (optional)</label>
+            <input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" />
+          </div>
+        </div>
+
+        <div class="fields-box" id="fieldsBox"></div>
+
+        <div class="report-section">
+          <div class="report-header">
+            <h2>Report Preview</h2>
+            <div class="btn-group">
+              <button id="btnCopy">Copy</button>
+              <button id="btnDownload" class="secondary">Download</button>
+              <button id="btnReset" class="secondary">Reset</button>
+            </div>
+          </div>
+          <textarea id="preview" readonly></textarea>
         </div>
       </div>
-      <textarea id="preview" readonly></textarea>
-    </div>
+    </main>
   </div>
-</div>
 
-<script src="js/report.js"></script>
-<script src="js/main.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
