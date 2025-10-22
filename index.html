@@ -1,74 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ICCR Report Generator</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICCR Report Generator</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">ICCR</div>
-      <nav>
-        <button class="nav-item active" data-section="home">
-          <i class="icon">🏠</i>
-          <span>Home</span>
-        </button>
-        <button class="nav-item" data-section="templates">
-          <i class="icon">📋</i>
-          <span>Templates</span>
-        </button>
-        <button class="nav-item" data-section="settings">
-          <i class="icon">⚙️</i>
-          <span>Settings</span>
-        </button>
-      </nav>
-      <div class="sidebar-footer">
-        <button id="themeToggle" class="nav-item">
-          <i class="icon">🌗</i>
-          <span>Theme</span>
-        </button>
+  <main>
+    <h1>ICCR Report Generator</h1>
+
+    <section id="form-section">
+      <form id="report-form"></form>
+      <div class="buttons">
+        <button type="button" id="generate">Generate Report</button>
+        <button type="button" id="copy">Copy to Clipboard</button>
+        <button type="button" id="download">Download .txt</button>
       </div>
-    </aside>
+    </section>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <header>
-        <h1>ICCR Report Generator</h1>
-      </header>
+    <section id="preview-section">
+      <h2>Report Preview</h2>
+      <pre id="report-output"></pre>
+    </section>
+  </main>
 
-      <div class="card">
-        <div class="template-bar">
-          <div>
-            <label for="templateSelect">Template</label>
-            <select id="templateSelect"></select>
-          </div>
-          <div>
-            <label>Diagnosis (optional)</label>
-            <input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" />
-          </div>
-        </div>
-
-        <div class="fields-box" id="fieldsBox"></div>
-
-        <div class="report-section">
-          <div class="report-header">
-            <h2>Report Preview</h2>
-            <div class="btn-group">
-              <button id="btnCopy">Copy</button>
-              <button id="btnDownload" class="secondary">Download</button>
-              <button id="btnReset" class="secondary">Reset</button>
-            </div>
-          </div>
-          <textarea id="preview" readonly></textarea>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script src="js/report.js"></script>
-  <script src="js/main.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
