@@ -1,76 +1,30 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #fff;
-  color: #000;
-  margin: 0;
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-}
+:root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--mono:"Courier New",Courier,monospace}
+html,body{height:100%;margin:0;font-family:Inter, system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071025 0%,#07142b 100%);color:#e6eef6}
+.wrap{max-width:1100px;margin:24px auto;padding:20px}
+header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+h1{margin:0;font-size:20px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+select,input,textarea,button{font-family:inherit}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:12px;margin-top:12px}
+.left{padding-right:8px}
+.field-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+label{width:46%;font-size:13px;color:var(--muted)}
+input[type="text"],select{flex:1;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+textarea#preview{width:100%;height:420px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#011024;color:#dff3fb;font-family:var(--mono);font-size:13px;white-space:pre;overflow:auto}
+button{background:var(--accent);color:#002;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)}
+.category-title{font-weight:600;color:#eaf8fb;margin-top:10px;margin-bottom:6px}
+.fields-box{max-height:320px;overflow:auto;padding-right:6px}
+.small{font-size:12px;color:var(--muted);margin-top:6px}
 
-main {
-  width: 100%;
-  max-width: 900px;
+/* Light theme */
+body.light-theme {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --muted: #6c757d;
+  --accent: #0d6efd;
+  --mono: "Courier New", Courier, monospace;
+  color: #212529;
 }
-
-h1, h2 {
-  font-weight: 600;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 0.5rem;
-}
-
-#form-section {
-  margin-top: 1rem;
-}
-
-form {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 0.5rem 1rem;
-  align-items: center;
-}
-
-label {
-  text-align: right;
-}
-
-input, select, textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  background: #fff;
-  color: #000;
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #000;
-  background: #fff;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-button:hover {
-  background: #000;
-  color: #fff;
-}
-
-#preview-section {
-  margin-top: 2rem;
-}
-
-#report-output {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  min-height: 200px;
-  white-space: pre-wrap;
-  background: #f9f9f9;
-}
+body.light-theme textarea#preview { background: #f0f0f0; color: #212529; }
+body.light-theme input, body.light-theme select { background: #ffffff; color: #212529; border: 1px solid #ced4da; }
