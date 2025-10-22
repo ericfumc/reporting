@@ -1,30 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ICCR Report Generator</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <main>
+<div class="wrap">
+  <header style="display:flex;gap:16px;align-items:center;margin-bottom:18px;">
     <h1>ICCR Report Generator</h1>
+    <div style="margin-left:auto">
+      <button id="themeToggle" class="secondary small">Toggle Theme</button>
+    </div>
+  </header>
 
-    <section id="form-section">
-      <form id="report-form"></form>
-      <div class="buttons">
-        <button type="button" id="generate">Generate Report</button>
-        <button type="button" id="copy">Copy to Clipboard</button>
-        <button type="button" id="download">Download .txt</button>
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <label for="templateSelect" class="small">Template</label><br>
+        <select id="templateSelect"></select>
       </div>
-    </section>
+      <div>
+        <label class="small">Diagnosis (optional)</label><br>
+        <input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" style="width:420px"/>
+      </div>
+    </div>
 
-    <section id="preview-section">
-      <h2>Report Preview</h2>
-      <pre id="report-output"></pre>
-    </section>
-  </main>
+    <div class="fields-box" id="fieldsBox"></div>
 
-  <script src="script.js"></script>
-</body>
+    <div style="margin-top:16px;">
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-weight:600">Report Preview</div>
+        <div style="display:flex;gap:8px">
+          <button id="btnCopy">Copy</button>
+          <button id="btnDownload" class="secondary">Download .txt</button>
+          <button id="btnReset" class="secondary">Reset values</button>
+        </div>
+      </div>
+      <textarea id="preview" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<script src="js/report.js"></script>
+<script src="js/main.js"></script>
+
 </html>
