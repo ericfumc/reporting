@@ -1,60 +1,163 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ICCR Report Generator</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Formatter</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #fff;
+      color: #000;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    h1 {
+      font-weight: 600;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 1rem;
+      box-sizing: border-box;
+      white-space: pre;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1rem;
+      margin-right: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #000;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    #output {
+      margin-top: 2rem;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      padding: 1rem;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 1rem;
+      min-height: 200px;
+    }
+
+    #button-container {
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-<header style="align-items:center">
-<h1>ICCR Report Generator</h1>
-<div style="margin-left:auto">
-  <button id="themeToggle" class="secondary small">Toggle Theme</button>
-</div>
-</header>
+  <main>
+    <h1>Report Formatter</h1>
 
-<div class="card">
-<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;">
-<div>
-<label for="templateSelect" class="small">Template</label><br>
-<select id="templateSelect"></select>
-</div>
-<div>
-<label class="small">Diagnosis (optional)</label><br>
-<input id="diagnosis" type="text" placeholder="Final diagnosis line (optional)" style="width:420px"/>
-</div>
-</div>
+    <label for="input-text"><strong>Unformatted Report Input:</strong></label>
+    <textarea id="input-text" placeholder="Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
 
-<div class="grid">
-<div class="left">
-<div class="card" style="padding:12px;">
-<div style="font-weight:600;margin-bottom:6px">Fields</div>
-<div class="fields-box" id="fieldsBox"></div>
-</div>
-</div>
+    <div id="button-container">
+      <button id="format-btn">Format Report</button>
+      <button id="copy-btn">Copy to Clipboard</button>
+      <button id="download-btn">Download .txt</button>
+    </div>
 
-<div>
-<div class="card" style="padding:12px">
-<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:6px">
-<div style="font-weight:600">Report Preview</div>
-<div style="display:flex;gap:8px">
-<button id="btnCopy">Copy</button>
-<button id="btnDownload" class="secondary">Download .txt</button>
-</div>
-</div>
-<textarea id="preview" readonly></textarea>
-<div style="display:flex;gap:8px;margin-top:8px">
-<button id="btnReset" class="secondary">Reset values</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <h2>Formatted Report:</h2>
+    <pre id="output"></pre>
+  </main>
 
-<script src="js/report.js"></script>
-<script src="js/main.js"></script>
+  <script>
+    function wrapText(text, maxWidth) {
+      const words = text.split(/\s+/);
+      let lines = [];
+      let currentLine = "";
+
+      for (const word of words) {
+        if ((currentLine + word).length > maxWidth) {
+          lines.push(currentLine.trim());
+          currentLine = word + " ";
+        } else {
+          currentLine += word + " ";
+        }
+      }
+
+      if (currentLine.trim()) lines.push(currentLine.trim());
+      return lines;
+    }
+
+    function formatReport(inputText) {
+      const lines = inputText.split(/\r?\n/);
+      const indentWidth = 40;
+      const lineWidth = 80;
+      let result = "";
+
+      for (const line of lines) {
+        const parts = line.split(":");
+        if (parts.length < 2) continue;
+
+        const key = parts[0].trim();
+        const value = parts.slice(1).join(":").trim();
+
+        const keyPart = key + ":";
+        const padding = " ".repeat(Math.max(indentWidth - keyPart.length, 1));
+        const wrapped = wrapText(value, lineWidth - indentWidth);
+
+        result += keyPart + padding + (wrapped[0] || "") + "\n";
+        for (let i = 1; i < wrapped.length; i++) {
+          result += " ".repeat(indentWidth) + wrapped[i] + "\n";
+        }
+      }
+
+      return result.trim();
+    }
+
+    document.getElementById("format-btn").addEventListener("click", () => {
+      const inputText = document.getElementById("input-text").value.trim();
+      const formatted = formatReport(inputText);
+      document.getElementById("output").textContent = formatted || "No valid input provided.";
+    });
+
+    document.getElementById("copy-btn").addEventListener("click", () => {
+      const text = document.getElementById("output").textContent;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      alert("Formatted report copied to clipboard.");
+    });
+
+    document.getElementById("download-btn").addEventListener("click", () => {
+      const text = document.getElementById("output").textContent;
+      if (!text) return;
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Formatted_Report.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  </script>
 </body>
 </html>
