@@ -18,21 +18,20 @@
 </head>
 <body>
   <div class="container">
-    <h2>Report Formatter</h2>
-
-    <label for="csvUrl">Google Sheet CSV URL (publish sheet as CSV; optional)</label>
+    <h2>Synoptic Report based on CAP protocol</h2>
+    
     <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
 
     <div class="row">
-      <button id="loadCsv">Load templates from CSV</button>
-      <span class="muted">or leave blank and paste templates manually below</span>
+      <button id="loadCsv">Load templates</button>
+      <span class="muted">or just paste your report manually below</span>
     </div>
 
     <label for="templateSelect">Choose Template</label>
     <select id="templateSelect"><option value="">-- none --</option></select>
 
     <label for="inputText">Unformatted Report Input</label>
-    <textarea id="inputText" placeholder="Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
+    <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
 
     <div class="row">
       <button id="formatBtn">Format Report</button>
