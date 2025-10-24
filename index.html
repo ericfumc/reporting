@@ -232,9 +232,10 @@ downloadBtn.addEventListener('click', ()=>{
   URL.revokeObjectURL(a.href);
 });
 
-// auto-format as you type? optional — currently only on button click
-// If you want live update, uncomment:
-// inputText.addEventListener('input', ()=> outputEl.textContent = formatReportFromInput(inputText.value));
+document.addEventListener("DOMContentLoaded", () => {
+  const url = document.getElementById('csvUrl').value;
+  if (url) fetchAndLoadCSV(url);
+});
 
 </script>
 </body>
