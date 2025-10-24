@@ -8,7 +8,7 @@
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:20px; color:#111}
     .container{max-width:900px;margin:0 auto}
     label{font-weight:600;display:block;margin-top:12px}
-    textarea{width:100%;min-height:160px;font-family:monospace;padding:10px;border:1px solid #ccc;box-sizing:border-box}
+    textarea{width:100%;min-height:160px;font-family:monospace;font-size: 16px;padding:10px;border:1px solid #ccc;box-sizing:border-box}
     pre{white-space:pre-wrap;background:#f7f7f7;padding:12px;border:1px solid #ddd;min-height:200px}
     .row{display:flex;gap:8px;margin-top:8px;align-items:center}
     select,input[type="text"]{padding:8px;border:1px solid #ccc;border-radius:4px}
@@ -182,10 +182,9 @@ async function fetchAndLoadCSV(url){
     const text = await res.text();
     const rows = parseCSV(text);
     populateTemplates(rows);
-    alert('Loaded ' + (rows.length-1) + ' rows (including header if present). Choose template from dropdown.');
   } catch(err){
     console.error(err);
-    alert('Failed to load CSV: ' + err.message + '\nYou can still paste templates manually.');
+    alert('Failed to load template: ' + err.message + '\nYou can still paste templates manually.');
   }
 }
 
