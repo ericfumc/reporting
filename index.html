@@ -75,7 +75,7 @@
     <h1>Report Formatter</h1>
 
     <label for="input-text"><strong>Unformatted Report Input:</strong></label>
-    <textarea id="input-text" placeholder="Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
+    <textarea id="input-text" placeholder="Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa&#10;&#10;Diagnosis&#10;Invasive carcinoma, NST"></textarea>
 
     <div id="button-container">
       <button id="format-btn">Format Report</button>
@@ -88,6 +88,7 @@
   </main>
 
   <script>
+    // Wrap text without breaking words
     function wrapText(text, maxWidth) {
       const words = text.split(/\s+/);
       let lines = [];
@@ -106,6 +107,7 @@
       return lines;
     }
 
+    // Format key:value pairs and preserve free text lines
     function formatReport(inputText) {
       const lines = inputText.split(/\r?\n/);
       const indentWidth = 40;
@@ -113,9 +115,22 @@
       let result = "";
 
       for (const line of lines) {
-        const parts = line.split(":");
-        if (parts.length < 2) continue;
+        const trimmed = line.trim();
 
+        // Skip blank lines but preserve them
+        if (trimmed === "") {
+          result += "\n";
+          continue;
+        }
+
+        // If line does not contain ":", output as-is
+        if (!line.includes(":")) {
+          result += trimmed + "\n";
+          continue;
+        }
+
+        // Split and format key:value lines
+        const parts = line.split(":");
         const key = parts[0].trim();
         const value = parts.slice(1).join(":").trim();
 
@@ -132,12 +147,14 @@
       return result.trim();
     }
 
+    // Format button
     document.getElementById("format-btn").addEventListener("click", () => {
       const inputText = document.getElementById("input-text").value.trim();
       const formatted = formatReport(inputText);
       document.getElementById("output").textContent = formatted || "No valid input provided.";
     });
 
+    // Copy button
     document.getElementById("copy-btn").addEventListener("click", () => {
       const text = document.getElementById("output").textContent;
       if (!text) return;
@@ -145,6 +162,7 @@
       alert("Formatted report copied to clipboard.");
     });
 
+    // Download button
     document.getElementById("download-btn").addEventListener("click", () => {
       const text = document.getElementById("output").textContent;
       if (!text) return;
