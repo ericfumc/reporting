@@ -1,181 +1,241 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Report Formatter</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Report Formatter — Load templates from Google Sheets (CSV)</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #fff;
-      color: #000;
-      margin: 0;
-      padding: 2rem;
-      display: flex;
-      justify-content: center;
-    }
-
-    main {
-      width: 100%;
-      max-width: 900px;
-    }
-
-    h1 {
-      font-weight: 600;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    textarea {
-      width: 100%;
-      height: 200px;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      font-family: monospace;
-      font-size: 1rem;
-      box-sizing: border-box;
-      white-space: pre;
-      resize: vertical;
-    }
-
-    button {
-      margin-top: 1rem;
-      margin-right: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: 1px solid #000;
-      background: #fff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    button:hover {
-      background: #000;
-      color: #fff;
-    }
-
-    #output {
-      margin-top: 2rem;
-      border: 1px solid #ccc;
-      background: #f9f9f9;
-      padding: 1rem;
-      white-space: pre-wrap;
-      font-family: monospace;
-      font-size: 1rem;
-      min-height: 200px;
-    }
-
-    #button-container {
-      margin-top: 1rem;
-    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:20px; color:#111}
+    .container{max-width:900px;margin:0 auto}
+    label{font-weight:600;display:block;margin-top:12px}
+    textarea{width:100%;min-height:160px;font-family:monospace;padding:10px;border:1px solid #ccc;box-sizing:border-box}
+    pre{white-space:pre-wrap;background:#f7f7f7;padding:12px;border:1px solid #ddd;min-height:200px}
+    .row{display:flex;gap:8px;margin-top:8px;align-items:center}
+    select,input[type="text"]{padding:8px;border:1px solid #ccc;border-radius:4px}
+    button{padding:8px 12px;border:1px solid #111;background:#fff;cursor:pointer}
+    .muted{color:#666;font-size:0.9rem}
   </style>
 </head>
 <body>
-  <main>
-    <h1>Report Formatter</h1>
+  <div class="container">
+    <h2>Report Formatter</h2>
 
-    <label for="input-text"><strong>Unformatted Report Input:</strong></label>
-    <textarea id="input-text" placeholder="TUMOUR&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa&#10;"></textarea>
+    <label for="csvUrl">Google Sheet CSV URL (publish sheet as CSV; optional)</label>
+    <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
 
-    <div id="button-container">
-      <button id="format-btn">Format Report</button>
-      <button id="copy-btn">Copy to Clipboard</button>
-      <button id="download-btn">Download .txt</button>
+    <div class="row">
+      <button id="loadCsv">Load templates from CSV</button>
+      <span class="muted">or leave blank and paste templates manually below</span>
     </div>
 
-    <h2>Formatted Report:</h2>
-    <pre id="output"></pre>
-  </main>
+    <label for="templateSelect">Choose Template</label>
+    <select id="templateSelect"><option value="">-- none --</option></select>
 
-  <script>
-    // Wrap text without breaking words
-    function wrapText(text, maxWidth) {
-      const words = text.split(/\s+/);
-      let lines = [];
-      let currentLine = "";
+    <label for="inputText">Unformatted Report Input</label>
+    <textarea id="inputText" placeholder="Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
 
-      for (const word of words) {
-        if ((currentLine + word).length > maxWidth) {
-          lines.push(currentLine.trim());
-          currentLine = word + " ";
-        } else {
-          currentLine += word + " ";
-        }
+    <div class="row">
+      <button id="formatBtn">Format Report</button>
+      <button id="copyBtn">Copy to clipboard</button>
+      <button id="downloadBtn">Download .txt</button>
+    </div>
+
+    <label>Formatted Report</label>
+    <pre id="output" aria-live="polite"></pre>
+
+    <p class="muted">Notes: Lines without ":" are preserved as-is. Key label + ":" then datum starts at column 41 (1-based). Wrap at 80 chars.</p>
+  </div>
+
+<script>
+/* ---------- CSV parser that handles quoted fields with embedded newlines ----------
+   Returns array of rows; each row is array of cell strings.
+   Lightweight, robust for Google Sheets CSV.
+*/
+function parseCSV(text){
+  const rows = [];
+  let i = 0, len = text.length;
+  let row = [], cell = '', inQuotes = false;
+
+  while(i < len){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ cell += '"'; i += 2; continue; } // escaped quote
+        else { inQuotes = false; i++; continue; }
+      } else {
+        cell += ch;
+        i++;
+        continue;
       }
+    } else {
+      if(ch === '"'){ inQuotes = true; i++; continue; }
+      if(ch === ','){ row.push(cell); cell = ''; i++; continue; }
+      if(ch === '\r'){ i++; continue; }
+      if(ch === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; i++; continue; }
+      cell += ch; i++;
+    }
+  }
+  // push last
+  if(inQuotes === false){
+    if(cell !== '' || row.length > 0){ row.push(cell); rows.push(row); }
+  }
+  return rows;
+}
 
-      if (currentLine.trim()) lines.push(currentLine.trim());
-      return lines;
+/* ----------------- Format logic -----------------
+   - lines with ":" are parsed as key:value
+   - key + ":" left, datum starts at column 41 (index 40 zero-based)
+   - wrap value lines at 80 chars, don't break words
+*/
+function wrapWords(text, maxWidth){
+  if(!text) return [];
+  const words = text.split(/\s+/);
+  const lines = [];
+  let cur = '';
+  for(const w of words){
+    if((cur.length ? cur.length + 1 + w.length : w.length) > maxWidth){
+      if(cur) lines.push(cur);
+      cur = w;
+    } else {
+      cur = cur ? (cur + ' ' + w) : w;
+    }
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+function formatReportFromInput(inputText){
+  const inLines = inputText.split(/\r?\n/);
+  const indent = 40; // datum starts at column 41 (so 40 spaces)
+  const maxTotal = 80;
+  const valueWidth = maxTotal - indent;
+  const outLines = [];
+
+  for(const rawLine of inLines){
+    // preserve empty lines
+    if(rawLine.trim() === ''){ outLines.push(''); continue; }
+
+    if(rawLine.indexOf(':') === -1){
+      // no colon — keep line as is
+      outLines.push(rawLine);
+      continue;
     }
 
-    // Format key:value pairs and preserve free text lines
-    function formatReport(inputText) {
-      const lines = inputText.split(/\r?\n/);
-      const indentWidth = 40;
-      const lineWidth = 80;
-      let result = "";
+    // split at first colon
+    const idx = rawLine.indexOf(':');
+    const key = rawLine.slice(0, idx).trim();
+    const value = rawLine.slice(idx+1).trim();
 
-      for (const line of lines) {
-        const trimmed = line.trim();
+    const keyPart = key + ':';
+    const padLen = Math.max(indent - keyPart.length, 1);
+    const pad = ' '.repeat(padLen);
 
-        // Skip blank lines but preserve them
-        if (trimmed === "") {
-          result += "\n";
-          continue;
-        }
-
-        // If line does not contain ":", output as-is
-        if (!line.includes(":")) {
-          result += trimmed + "\n";
-          continue;
-        }
-
-        // Split and format key:value lines
-        const parts = line.split(":");
-        const key = parts[0].trim();
-        const value = parts.slice(1).join(":").trim();
-
-        const keyPart = key + ":";
-        const padding = " ".repeat(Math.max(indentWidth - keyPart.length, 1));
-        const wrapped = wrapText(value, lineWidth - indentWidth);
-
-        result += keyPart + padding + (wrapped[0] || "") + "\n";
-        for (let i = 1; i < wrapped.length; i++) {
-          result += " ".repeat(indentWidth) + wrapped[i] + "\n";
-        }
+    // wrap the value to valueWidth characters, not splitting words
+    const vlines = wrapWords(value, valueWidth);
+    if(vlines.length === 0){
+      outLines.push(keyPart + pad);
+    } else {
+      outLines.push(keyPart + pad + vlines[0]);
+      for(let i=1;i<vlines.length;i++){
+        outLines.push(' '.repeat(indent) + vlines[i]);
       }
-
-      return result.trim();
     }
+  }
 
-    // Format button
-    document.getElementById("format-btn").addEventListener("click", () => {
-      const inputText = document.getElementById("input-text").value.trim();
-      const formatted = formatReport(inputText);
-      document.getElementById("output").textContent = formatted || "No valid input provided.";
-    });
+  return outLines.join('\n');
+}
 
-    // Copy button
-    document.getElementById("copy-btn").addEventListener("click", () => {
-      const text = document.getElementById("output").textContent;
-      if (!text) return;
-      navigator.clipboard.writeText(text);
-      alert("Formatted report copied to clipboard.");
-    });
+/* ----------------- UI wiring ----------------- */
+const csvInput = document.getElementById('csvUrl');
+const loadCsvBtn = document.getElementById('loadCsv');
+const templateSelect = document.getElementById('templateSelect');
+const inputText = document.getElementById('inputText');
+const formatBtn = document.getElementById('formatBtn');
+const outputEl = document.getElementById('output');
+const copyBtn = document.getElementById('copyBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 
-    // Download button
-    document.getElementById("download-btn").addEventListener("click", () => {
-      const text = document.getElementById("output").textContent;
-      if (!text) return;
-      const blob = new Blob([text], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Formatted_Report.txt";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
-  </script>
+// populate dropdown from rows (name in col0, body in col1)
+function populateTemplates(rows){
+  // rows: array of cell arrays
+  templateSelect.innerHTML = '<option value="">-- none --</option>';
+  const templates = [];
+  for(const r of rows){
+    const name = (r[0]||'').toString().trim();
+    const body = (r[1]||'').toString();
+    if(name) {
+      const opt = document.createElement('option');
+      opt.value = templates.length; // index in templates array
+      opt.textContent = name;
+      templateSelect.appendChild(opt);
+      templates.push({name, body});
+    }
+  }
+  // store templates on select for later
+  templateSelect._templates = templates;
+}
+
+// fetch CSV and populate
+async function fetchAndLoadCSV(url){
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Fetch failed: ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    populateTemplates(rows);
+    alert('Loaded ' + (rows.length-1) + ' rows (including header if present). Choose template from dropdown.');
+  } catch(err){
+    console.error(err);
+    alert('Failed to load CSV: ' + err.message + '\nYou can still paste templates manually.');
+  }
+}
+
+// events
+loadCsvBtn.addEventListener('click', ()=>{
+  const url = csvInput.value.trim();
+  if(!url){ alert('Paste the published CSV URL into the field above, then click Load templates.'); return; }
+  fetchAndLoadCSV(url);
+});
+
+templateSelect.addEventListener('change', ()=>{
+  const idx = templateSelect.value;
+  if(idx === ''){ inputText.value = ''; return; }
+  const templates = templateSelect._templates || [];
+  const tpl = templates[Number(idx)];
+  if(tpl) inputText.value = tpl.body;
+});
+
+formatBtn.addEventListener('click', ()=>{
+  const out = formatReportFromInput(inputText.value || '');
+  outputEl.textContent = out || '(no output)';
+});
+
+copyBtn.addEventListener('click', async ()=>{
+  const text = outputEl.textContent;
+  if(!text) return alert('Nothing to copy');
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('Copied to clipboard');
+  }catch(e){ alert('Copy failed: ' + e.message); }
+});
+
+downloadBtn.addEventListener('click', ()=>{
+  const text = outputEl.textContent;
+  if(!text) return alert('Nothing to download');
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Formatted_Report.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+});
+
+// auto-format as you type? optional — currently only on button click
+// If you want live update, uncomment:
+// inputText.addEventListener('input', ()=> outputEl.textContent = formatReportFromInput(inputText.value));
+
+</script>
 </body>
 </html>
