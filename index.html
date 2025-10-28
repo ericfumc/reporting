@@ -27,9 +27,9 @@
       <span class="muted">or just paste your report manually below</span>
     </div>
 
-    <label for="templateSelect">Choose Template</label>
-    <select id="templateSelect"><option value="">-- none --</option></select>
-    <p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">View template reference</a></p>
+<label for="templateSelect">Choose Template</label>
+<select id="templateSelect"><option value="">-- none --</option></select>
+<p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">View template reference</a></p>
 
     <label for="inputText">Unformatted Report Input</label>
     <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
@@ -198,6 +198,7 @@ loadCsvBtn.addEventListener('click', ()=>{
 });
 
 // When user selects a template
+// When user selects a template
 templateSelect.addEventListener('change', () => {
   const idx = templateSelect.value;
   const linkEl = document.getElementById('templateLink');
@@ -216,13 +217,14 @@ templateSelect.addEventListener('change', () => {
     // Only show link if non-empty and looks like a URL
     if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
       linkEl.href = tpl.link;
-      linkEl.textContent = 'View template reference';
+      linkEl.textContent = `View reference for ${tpl.name}`;
       linkEl.style.display = 'inline';
     } else {
       linkEl.style.display = 'none';
     }
   }
 });
+  
 formatBtn.addEventListener('click', ()=>{
   const out = formatReportFromInput(inputText.value || '');
   outputEl.textContent = out || '(no output)';
