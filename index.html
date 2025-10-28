@@ -29,6 +29,7 @@
 
     <label for="templateSelect">Choose Template</label>
     <select id="templateSelect"><option value="">-- none --</option></select>
+    <p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">View template reference</a></p>
 
     <label for="inputText">Unformatted Report Input</label>
     <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
@@ -154,25 +155,26 @@ const outputEl = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 
-// populate dropdown from rows (name in col0, body in col1)
-function populateTemplates(rows){
-  // rows: array of cell arrays
+// populate dropdown from rows (name, body, link)
+function populateTemplates(rows) {
   templateSelect.innerHTML = '<option value="">-- none --</option>';
   const templates = [];
-  for(const r of rows){
-    const name = (r[0]||'').toString().trim();
-    const body = (r[1]||'').toString();
-    if(name) {
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    const name = (r[0] || '').toString().trim();
+    const body = (r[1] || '').toString();
+    const link = (r[2] || '').toString().trim();
+    if (name) {
       const opt = document.createElement('option');
-      opt.value = templates.length; // index in templates array
+      opt.value = templates.length;
       opt.textContent = name;
       templateSelect.appendChild(opt);
-      templates.push({name, body});
+      templates.push({ name, body, link });
     }
   }
-  // store templates on select for later
   templateSelect._templates = templates;
 }
+
 
 // fetch CSV and populate
 async function fetchAndLoadCSV(url){
@@ -195,14 +197,32 @@ loadCsvBtn.addEventListener('click', ()=>{
   fetchAndLoadCSV(url);
 });
 
-templateSelect.addEventListener('change', ()=>{
+// When user selects a template
+templateSelect.addEventListener('change', () => {
   const idx = templateSelect.value;
-  if(idx === ''){ inputText.value = ''; return; }
+  const linkEl = document.getElementById('templateLink');
   const templates = templateSelect._templates || [];
-  const tpl = templates[Number(idx)];
-  if(tpl) inputText.value = tpl.body;
-});
 
+  if (idx === '') {
+    inputText.value = '';
+    linkEl.style.display = 'none';
+    return;
+  }
+
+  const tpl = templates[Number(idx)];
+  if (tpl) {
+    inputText.value = tpl.body;
+
+    // Only show link if non-empty and looks like a URL
+    if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
+      linkEl.href = tpl.link;
+      linkEl.textContent = 'View template reference';
+      linkEl.style.display = 'inline';
+    } else {
+      linkEl.style.display = 'none';
+    }
+  }
+});
 formatBtn.addEventListener('click', ()=>{
   const out = formatReportFromInput(inputText.value || '');
   outputEl.textContent = out || '(no output)';
