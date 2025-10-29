@@ -34,6 +34,10 @@
     <label for="inputText">Unformatted Report Input</label>
     <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
 
+    <div id="pdfContainer" style="display:none; width:100%; height:400px; border:1px solid #ccc; margin-top:1rem;">
+      <iframe id="pdfViewer" src="" width="100%" height="100%" style="border:none;"></iframe>
+    </div>
+    
     <div class="row">
       <button id="formatBtn">Format Report</button>
       <button id="copyBtn">Copy to clipboard</button>
@@ -202,11 +206,16 @@ loadCsvBtn.addEventListener('click', ()=>{
 templateSelect.addEventListener('change', () => {
   const idx = templateSelect.value;
   const linkEl = document.getElementById('templateLink');
+  const pdfContainer = document.getElementById('pdfContainer');
+  const pdfViewer = document.getElementById('pdfViewer');
   const templates = templateSelect._templates || [];
 
+  // Clear when none selected
   if (idx === '') {
     inputText.value = '';
     linkEl.style.display = 'none';
+    pdfContainer.style.display = 'none';
+    pdfViewer.src = '';
     return;
   }
 
@@ -214,13 +223,24 @@ templateSelect.addEventListener('change', () => {
   if (tpl) {
     inputText.value = tpl.body;
 
-    // Only show link if non-empty and looks like a URL
+    // Handle the link
     if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
       linkEl.href = tpl.link;
       linkEl.textContent = `View reference for ${tpl.name}`;
       linkEl.style.display = 'inline';
+
+      // Show PDF inline if it's a PDF link
+      if (tpl.link.endsWith('.pdf')) {
+        pdfViewer.src = tpl.link;
+        pdfContainer.style.display = 'block';
+      } else {
+        pdfContainer.style.display = 'none';
+        pdfViewer.src = '';
+      }
     } else {
       linkEl.style.display = 'none';
+      pdfContainer.style.display = 'none';
+      pdfViewer.src = '';
     }
   }
 });
