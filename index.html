@@ -229,10 +229,14 @@ templateSelect.addEventListener('change', async () => {
 
     // --- Google Drive link conversion ---
     if (pdfUrl.includes('drive.google.com')) {
+      alert(pdfUrl);
       const match = pdfUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      alert(match);
+      alert(match[1]);
       if (match && match[1]) {
-        pdfUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+        pdfUrl = 'https://drive.google.com/uc?export=download&id=${match[1]}';
       }
+      alert(pdfUrl);
     }
 
     // --- OneDrive link conversion ---
@@ -270,6 +274,7 @@ templateSelect.addEventListener('change', async () => {
     } catch {
       pdfContainer.style.display = 'none';
       pdfViewer.src = '';
+      console.error("An error occurred:", error.message);
     }
   }
 });
