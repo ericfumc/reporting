@@ -261,18 +261,6 @@ templateSelect.addEventListener('change', async () => {
     pdfContainer.style.display = 'block';
 
     // --- Validate MIME type (optional but cleaner) ---
-    try {
-      const res = await fetch(pdfUrl, { method: 'HEAD' });
-      const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('pdf')) {
-        // If it's not a PDF or fetch fails, hide the frame
-        pdfContainer.style.display = 'none';
-        pdfViewer.src = '';
-      }
-    } catch(e) {
-      pdfContainer.style.display = 'none';
-      pdfViewer.src = '';
-    }
   }
 });
 
