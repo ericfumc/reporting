@@ -209,7 +209,7 @@ templateSelect.addEventListener('change', async () => {
   const pdfViewer = document.getElementById('pdfViewer');
   const templates = templateSelect._templates || [];
 
-  // Reset
+  // Reset UI
   inputText.value = '';
   linkEl.style.display = 'none';
   pdfContainer.style.display = 'none';
@@ -220,37 +220,50 @@ templateSelect.addEventListener('change', async () => {
   const tpl = templates[Number(idx)];
   if (!tpl) return;
 
-  // Update input text
+  // Fill text
   inputText.value = tpl.body;
 
-  // Link display
+  // Check link validity
   if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
     let pdfUrl = tpl.link.trim();
 
-    // ---- Normalize Google Drive or other patterns ----
+    // --- Google Drive link conversion ---
     if (pdfUrl.includes('drive.google.com')) {
-      // Convert to direct PDF view
       const match = pdfUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
         pdfUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
       }
     }
 
-    // ---- Display the link ----
+    // --- OneDrive link conversion ---
+    // Typical OneDrive shared link pattern:
+    // https://onedrive.live.com/view.aspx?resid=ABC123...  or
+    // https://1drv.ms/b/s!ABC123...
+    if (pdfUrl.includes('1drv.ms') || pdfUrl.includes('onedrive.live.com')) {
+      // Make it embeddable
+      pdfUrl = pdfUrl.replace("redir", "embed");
+      pdfUrl = pdfUrl.replace("view.aspx", "embed");
+      // Force PDF viewer embed mode
+      if (!pdfUrl.includes("embed")) {
+        pdfUrl += (pdfUrl.includes("?") ? "&" : "?") + "embed=1";
+      }
+    }
+
+    // --- Display the clickable reference link ---
     linkEl.href = tpl.link;
     linkEl.textContent = `View reference for ${tpl.name}`;
     linkEl.style.display = 'inline';
 
-    // ---- Try embedding PDF ----
+    // --- Try to display PDF ---
     pdfViewer.src = pdfUrl;
     pdfContainer.style.display = 'block';
 
-    // ---- Optional: Test if it’s actually a PDF ----
+    // --- Validate MIME type (optional but cleaner) ---
     try {
       const res = await fetch(pdfUrl, { method: 'HEAD' });
       const contentType = res.headers.get('content-type') || '';
       if (!contentType.includes('pdf')) {
-        // Not a PDF — hide viewer
+        // If it's not a PDF or fetch fails, hide the frame
         pdfContainer.style.display = 'none';
         pdfViewer.src = '';
       }
@@ -260,6 +273,7 @@ templateSelect.addEventListener('change', async () => {
     }
   }
 });
+
   
 formatBtn.addEventListener('click', ()=>{
   const out = formatReportFromInput(inputText.value || '');
