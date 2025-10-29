@@ -271,10 +271,10 @@ templateSelect.addEventListener('change', async () => {
         pdfContainer.style.display = 'none';
         pdfViewer.src = '';
       }
-    } catch {
+    } catch(e) {
       pdfContainer.style.display = 'none';
       pdfViewer.src = '';
-      console.error("An error occurred:", error.message);
+      alert("An error occurred:", e.message);
     }
   }
 });
