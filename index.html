@@ -234,7 +234,7 @@ templateSelect.addEventListener('change', async () => {
       alert(match);
       alert(match[1]);
       if (match && match[1]) {
-        pdfUrl = 'https://drive.google.com/uc?export=download&id=${match[1]}';
+        pdfUrl = 'https://drive.google.com/uc?export=download&id=${'+match[1]+'}';
       }
       alert(pdfUrl);
     }
