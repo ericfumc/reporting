@@ -227,16 +227,6 @@ templateSelect.addEventListener('change', async () => {
   if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
     let pdfUrl = tpl.link.trim();
 
-    // --- Google Drive link conversion ---
-    if (pdfUrl.includes('drive.google.com')) {
-      alert(pdfUrl);
-      //const match = pdfUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)
-      //alert(match)
-      //alert(match[1])
-      //if (match && match[1]) {pdfUrl = 'https://drive.google.com/uc?export=download&id='+match[1];}
-      alert(pdfUrl);
-    }
-
     // --- OneDrive link conversion ---
     // Typical OneDrive shared link pattern:
     // https://onedrive.live.com/view.aspx?resid=ABC123...  or
