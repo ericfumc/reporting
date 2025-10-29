@@ -202,43 +202,59 @@ loadCsvBtn.addEventListener('click', ()=>{
 });
 
 // When user selects a template
-// When user selects a template
-templateSelect.addEventListener('change', () => {
+templateSelect.addEventListener('change', async () => {
   const idx = templateSelect.value;
   const linkEl = document.getElementById('templateLink');
   const pdfContainer = document.getElementById('pdfContainer');
   const pdfViewer = document.getElementById('pdfViewer');
   const templates = templateSelect._templates || [];
 
-  // Clear when none selected
-  if (idx === '') {
-    inputText.value = '';
-    linkEl.style.display = 'none';
-    pdfContainer.style.display = 'none';
-    pdfViewer.src = '';
-    return;
-  }
+  // Reset
+  inputText.value = '';
+  linkEl.style.display = 'none';
+  pdfContainer.style.display = 'none';
+  pdfViewer.src = '';
+
+  if (idx === '') return;
 
   const tpl = templates[Number(idx)];
-  if (tpl) {
-    inputText.value = tpl.body;
+  if (!tpl) return;
 
-    // Handle the link
-    if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
-      linkEl.href = tpl.link;
-      linkEl.textContent = `View reference for ${tpl.name}`;
-      linkEl.style.display = 'inline';
+  // Update input text
+  inputText.value = tpl.body;
 
-      // Show PDF inline if it's a PDF link
-      if (tpl.link.endsWith('.pdf')) {
-        pdfViewer.src = tpl.link;
-        pdfContainer.style.display = 'block';
-      } else {
+  // Link display
+  if (tpl.link && /^https?:\/\//i.test(tpl.link)) {
+    let pdfUrl = tpl.link.trim();
+
+    // ---- Normalize Google Drive or other patterns ----
+    if (pdfUrl.includes('drive.google.com')) {
+      // Convert to direct PDF view
+      const match = pdfUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        pdfUrl = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+      }
+    }
+
+    // ---- Display the link ----
+    linkEl.href = tpl.link;
+    linkEl.textContent = `View reference for ${tpl.name}`;
+    linkEl.style.display = 'inline';
+
+    // ---- Try embedding PDF ----
+    pdfViewer.src = pdfUrl;
+    pdfContainer.style.display = 'block';
+
+    // ---- Optional: Test if it’s actually a PDF ----
+    try {
+      const res = await fetch(pdfUrl, { method: 'HEAD' });
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('pdf')) {
+        // Not a PDF — hide viewer
         pdfContainer.style.display = 'none';
         pdfViewer.src = '';
       }
-    } else {
-      linkEl.style.display = 'none';
+    } catch {
       pdfContainer.style.display = 'none';
       pdfViewer.src = '';
     }
