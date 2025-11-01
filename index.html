@@ -236,7 +236,9 @@ templateSelect.addEventListener('change', async () => {
     pdfViewer.src = pdfUrl;
     pdfContainer.style.display = 'block';
 
-    // --- Validate MIME type (optional but cleaner) ---
+    // --- Auto-output ---
+    const out = formatReportFromInput(inputText.value || '');
+    outputEl.textContent = out || '(no output)';
   }
 });
 
