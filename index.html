@@ -30,6 +30,7 @@
 <label for="templateSelect">Choose Template</label>
 <select id="templateSelect"><option value="">-- none --</option></select>
 <p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">View template reference</a></p>
+<p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">Quick Reference</a></p>
 
     <label for="inputText">Unformatted Report Input</label>
     <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
@@ -168,12 +169,13 @@ function populateTemplates(rows) {
     const name = (r[0] || '').toString().trim();
     const body = (r[1] || '').toString();
     const link = (r[2] || '').toString().trim();
+    const link2 = (r[3] || '').toString().trim();
     if (name) {
       const opt = document.createElement('option');
       opt.value = templates.length;
       opt.textContent = name;
       templateSelect.appendChild(opt);
-      templates.push({ name, body, link });
+      templates.push({ name, body, link, link2 });
     }
   }
   templateSelect._templates = templates;
