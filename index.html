@@ -236,10 +236,6 @@ templateSelect.addEventListener('change', async () => {
     linkEl.textContent = `View reference for ${tpl.name}`;
     linkEl.style.display = 'inline';
 
-    linkE2.href = tpl.link2;
-    linkE2.textContent = `View reference for ${tpl.name}`;
-    linkE2.style.display = 'inline';
-
     // --- Try to display PDF ---
     pdfViewer.src = pdfUrl;
     pdfContainer.style.display = 'block';
@@ -247,6 +243,16 @@ templateSelect.addEventListener('change', async () => {
     // --- Auto-output ---
     const out = formatReportFromInput(inputText.value || '');
     outputEl.textContent = out || '(no output)';
+  }
+
+  // Check link2 validity
+  if (tpl.link2 && /^https?:\/\//i.test(tpl.link)) {
+
+    // --- Display the clickable reference link ---
+    linkE2.href = tpl.link2;
+    linkE2.textContent = `Quick reference for ${tpl.name}`;
+    linkE2.style.display = 'inline';
+
   }
 });
 
