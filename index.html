@@ -30,7 +30,7 @@
 <label for="templateSelect">Choose Template</label>
 <select id="templateSelect"><option value="">-- none --</option></select>
 <p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">View template reference</a></p>
-<p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.9rem;">Quick Reference</a></p>
+<p><a id="templateLink2" href="#" target="_blank" style="display:none; font-size:0.9rem;">Quick Reference</a></p>
 
     <label for="inputText">Unformatted Report Input</label>
     <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
@@ -207,6 +207,7 @@ loadCsvBtn.addEventListener('click', ()=>{
 templateSelect.addEventListener('change', async () => {
   const idx = templateSelect.value;
   const linkEl = document.getElementById('templateLink');
+  const linkE2 = document.getElementById('templateLink2');
   const pdfContainer = document.getElementById('pdfContainer');
   const pdfViewer = document.getElementById('pdfViewer');
   const templates = templateSelect._templates || [];
@@ -214,6 +215,7 @@ templateSelect.addEventListener('change', async () => {
   // Reset UI
   inputText.value = '';
   linkEl.style.display = 'none';
+  linkE2.style.display = 'none';
   pdfContainer.style.display = 'none';
   pdfViewer.src = '';
 
@@ -233,6 +235,10 @@ templateSelect.addEventListener('change', async () => {
     linkEl.href = tpl.link;
     linkEl.textContent = `View reference for ${tpl.name}`;
     linkEl.style.display = 'inline';
+
+    linkE2.href = tpl.link2;
+    linkE2.textContent = `View reference for ${tpl.name}`;
+    linkE2.style.display = 'inline';
 
     // --- Try to display PDF ---
     pdfViewer.src = pdfUrl;
