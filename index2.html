@@ -1126,7 +1126,7 @@
           </div>
 
           <p class="sync-note">
-            GitHub Pages cannot write to Google Sheets. <strong>Save to Google Sheet</strong> applies edits in this browser session and copies a sync package JSON — paste it in CodeDesk and say <code>save</code>. Optionally set <code>window.TEMPLATE_SYNC_URL</code> for a future Apps Script POST.
+            <strong>Save to Google Sheet</strong> writes your templates to the live spreadsheet via Apps Script, keeps this session updated, and also copies a sync package to the clipboard as a backup.
           </p>
         </section>
       </main>
@@ -1141,7 +1141,7 @@
 
 <script>
 /* Optional: set to an Apps Script web app URL to POST sync packages */
-window.TEMPLATE_SYNC_URL = window.TEMPLATE_SYNC_URL || '';
+window.TEMPLATE_SYNC_URL = window.TEMPLATE_SYNC_URL || 'https://script.google.com/macros/s/AKfycbx8iqbLuww-V7vG3kwdle2166KjrPwbjJYZOueH1Z0Ea9BeHtioWV0_cSREoIJYpeTx/exec';
 
 const SPREADSHEET_ID = '1312knnJayUkaTBgVsTXa5Wi8hcKOzP9amgOFLn2ssP0';
 const SHEET_NAME = 'Sheet1';
@@ -1758,7 +1758,7 @@ async function maybePostSync(json){
   try{
     await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: json
     });
   }catch(_e){
