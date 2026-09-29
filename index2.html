@@ -1,123 +1,1152 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Web App for Pathology Reports</title>
+  <title>Cancer Report Formatter — Pathology</title>
   <style>
-    /* Reset and Base Styles */
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      margin: 0;
-      padding: 0;
-      color: #111;
-      height: 100vh; /* Use full viewport height */
-      overflow: hidden; /* Prevent body scroll, handle in panes */
-    }
-    
-    /* Split Layout Containers */
-    .split-layout {
-      display: flex;
-      height: 100%;
-      width: 100vw;
-    }
-    
-    .left-pane {
-      flex: 1; /* Takes up 50% width */
-      padding: 20px 30px;
-      overflow-y: auto; /* Independent scrolling */
-      border-right: 1px solid #ddd;
-      box-sizing: border-box;
-    }
-    
-    .right-pane {
-      flex: 1; /* Takes up 50% width */
-      padding: 20px 30px;
-      display: flex;
-      flex-direction: column;
-      background: #fcfcfc;
-      box-sizing: border-box;
+    :root {
+      --bg: #eef1f4;
+      --surface: #ffffff;
+      --surface-muted: #f5f7f9;
+      --border: #d5dde5;
+      --border-strong: #b8c4d0;
+      --text: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #6b7a8d;
+      --accent: #0d6e6e;
+      --accent-hover: #0a5858;
+      --accent-soft: #e6f3f3;
+      --accent-ring: rgba(13, 110, 110, 0.35);
+      --navy: #1e3a5f;
+      --danger: #b42318;
+      --danger-soft: #fef3f2;
+      --shadow-sm: 0 1px 2px rgba(26, 35, 50, 0.04);
+      --shadow: 0 1px 3px rgba(26, 35, 50, 0.06), 0 4px 12px rgba(26, 35, 50, 0.04);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --font-ui: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Liberation Mono", Menlo, monospace;
+      --header-h: 56px;
     }
 
-    /* Form and Typography Elements */
-    h2, h3 { margin-top: 0; }
-    label { font-weight: 600; display: block; margin-top: 16px; margin-bottom: 4px;}
-    textarea { width: 100%; min-height: 200px; font-family: monospace; font-size: 14px; padding: 10px; border: 1px solid #ccc; box-sizing: border-box; resize: vertical; }
-    pre { white-space: pre-wrap; background: #f7f7f7; padding: 12px; border: 1px solid #ddd; min-height: 200px; font-size: 14px; }
-    .row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-    select, input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; max-width: 400px;}
-    button { padding: 8px 16px; border: 1px solid #111; background: #fff; cursor: pointer; border-radius: 4px; }
-    button:hover { background: #eee; }
-    .muted { color: #666; font-size: 0.85rem; line-height: 1.4; }
-    
-    /* Reference Viewer Specifics */
-    .reference-links { margin-bottom: 10px; }
-    .reference-links p { margin: 4px 0; }
-    #pdfContainer { 
-      flex-grow: 1; /* Expands to fill the rest of the right pane's height */
-      width: 100%; 
-      border: 1px solid #ccc; 
-      margin-top: 10px;
-      display: none; 
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ----- Header ----- */
+    .app-header {
+      height: var(--header-h);
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      flex-shrink: 0;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+      gap: 1rem;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .app-brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .app-brand-mark svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      font-weight: 400;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .mode-switch button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 550;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      line-height: 1.3;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-switch button:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .mode-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .mode-switch button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.1);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #6b7a8d;
+      flex-shrink: 0;
+    }
+
+    .status-dot.ready {
+      background: #34d399;
+      box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
+    }
+
+    .status-dot.loading {
+      background: #fbbf24;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .status-dot.dirty {
+      background: #fbbf24;
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.3);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ----- Layout ----- */
+    .app-body {
+      display: flex;
+      height: calc(100vh - var(--header-h));
+      overflow: hidden;
+    }
+
+    .app-body.mode-edit .format-only { display: none !important; }
+    .app-body.mode-format .edit-pane { display: none; }
+    .app-body.mode-edit .edit-pane { display: flex; }
+
+    .left-pane,
+    .right-pane {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .left-pane {
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .right-pane {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-muted);
+      padding-bottom: 1rem;
+    }
+
+    /* ----- Cards ----- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 0 0 0.4rem;
+    }
+
+    .field-group {
+      margin-bottom: 1rem;
+    }
+
+    .field-group:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ----- Form controls ----- */
+    select,
+    input[type="text"],
+    input[type="search"],
+    input[type="url"] {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    select:hover,
+    input[type="text"]:hover,
+    input[type="search"]:hover,
+    input[type="url"]:hover {
+      border-color: var(--border-strong);
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    input[type="search"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    button:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
+    .io-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .io-grid .card {
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .io-grid textarea,
+    .io-grid .output-pre {
+      flex: 1;
+      min-height: 160px;
+      max-height: none;
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 0.75rem 0 1rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 1100px) {
+      .io-grid { grid-template-columns: 1fr; }
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    .output-pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      min-height: 140px;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .output-pre:empty::before {
+      content: "Formatted output will appear here…";
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Filter above select */
+    .template-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-wrap {
+      position: relative;
+    }
+
+    .filter-wrap svg {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .filter-wrap input {
+      padding-left: 2.1rem;
+    }
+
+    /* ----- Buttons ----- */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    button {
+      font-family: var(--font-ui);
+      font-size: 0.875rem;
+      font-weight: 550;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-muted);
+      border-color: var(--border-strong);
+    }
+
+    .btn-danger {
+      background: var(--surface);
+      color: var(--danger);
+      border-color: #f3c4c0;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: transparent;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .disclaimer {
+      margin-top: 1.25rem;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    /* ----- Right pane: references ----- */
+    .ref-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .ref-header h2 {
+      font-size: 0.8rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .reference-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-shrink: 0;
+      min-height: 0;
+    }
+
+    .reference-links:empty {
+      display: none;
+    }
+
+    .ref-chip {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 550;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .ref-chip:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .ref-chip svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    #pdfContainer {
+      flex-grow: 1;
+      width: 100%;
+      min-height: 280px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      display: none;
+      box-shadow: var(--shadow-sm);
+    }
+
     #pdfViewer {
       width: 100%;
       height: 100%;
       border: none;
     }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      min-height: 280px;
+    }
+
+    .empty-state.hidden {
+      display: none;
+    }
+
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      display: grid;
+      place-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .empty-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 0.85rem;
+      max-width: 260px;
+      line-height: 1.45;
+    }
+
+    /* ----- Editor mode ----- */
+    .edit-pane {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .edit-list-pane {
+      width: 340px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem 1rem;
+      overflow: hidden;
+    }
+
+    .edit-form-pane {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface-muted);
+    }
+
+    .edit-list-toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .edit-list-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .edit-list-actions button {
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .tpl-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .tpl-list li {
+      margin: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tpl-list li:last-child {
+      border-bottom: none;
+    }
+
+    .tpl-list-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tpl-list-item:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tpl-list-item.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .tpl-list-item.section {
+      color: var(--text-muted);
+      font-weight: 650;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--surface-muted);
+    }
+
+    .tpl-list-item.section:hover {
+      background: #e8eef4;
+      color: var(--text-secondary);
+    }
+
+    .tpl-list-item.section.active {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .tpl-list-empty {
+      padding: 1.25rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .dirty-badge {
+      display: none;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .dirty-badge.show {
+      display: inline-flex;
+    }
+
+    .dirty-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    .editor-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 320px;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .editor-empty.hidden { display: none; }
+    .editor-form.hidden { display: none; }
+
+    .editor-form textarea {
+      min-height: 280px;
+    }
+
+    .sync-note {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      background: var(--accent-soft);
+      border: 1px solid #b7d9d9;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .sync-note code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.7);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    /* ----- Toast ----- */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--navy);
+      color: #fff;
+      padding: 0.7rem 1.15rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(26, 35, 50, 0.25);
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+      max-width: min(520px, 92vw);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast svg {
+      width: 16px;
+      height: 16px;
+      stroke: #34d399;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 860px) {
+      body { overflow: auto; }
+      .app-body {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - var(--header-h));
+      }
+      .app-body.mode-edit {
+        flex-direction: column;
+      }
+      .edit-pane {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+      .edit-list-pane {
+        width: 100%;
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .left-pane {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        overflow: visible;
+      }
+      .right-pane {
+        min-height: 50vh;
+        overflow: visible;
+      }
+      #pdfContainer {
+        min-height: 360px;
+        height: 50vh;
+      }
+      .app-header {
+        padding: 0 1rem;
+        flex-wrap: wrap;
+        height: auto;
+        min-height: var(--header-h);
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+      .app-subtitle { display: none; }
+      .left-pane, .right-pane {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-row { flex-direction: column; align-items: stretch; }
+      button { justify-content: center; }
+      .header-status span#statusText { display: none; }
+      .header-status { padding: 0.35rem; }
+      .mode-switch button { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="split-layout">
-    
-    <!-- LEFT PANE: Formatter & Inputs -->
-    <div class="left-pane">
-      <h2>Cancer Report Formatter</h2>
-      
-      <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
-
-      <div class="row" style="margin-top: 0;">
-        <button id="loadCsv">Load templates</button>
-        <span class="muted">or paste report manually</span>
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="app-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v2H9zM7 5h10v2H7zM5 7h14v14H5z"/><path d="M9 12h6M9 16h4"/></svg>
       </div>
-
-      <label for="templateSelect">Choose Template</label>
-      <select id="templateSelect"><option value="">-- none --</option></select>
-
-      <label for="inputText">Unformatted Report Input</label>
-      <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa"></textarea>
-
-      <div class="row">
-        <button id="formatBtn" style="background: #111; color: white;">Format Report</button>
-        <button id="copyBtn">Copy to clipboard</button>
-        <button id="downloadBtn">Download .txt</button>
+      <div>
+        <h1 class="app-title">Cancer Report Formatter</h1>
+        <p class="app-subtitle">Pathology reporting · structured templates</p>
       </div>
-
-      <label>Formatted Report</label>
-      <pre id="output" aria-live="polite"></pre>
-
-      <p class="muted" style="margin-top: 2rem;">Created by Eric Fu, 2025. For personal use. Non-profit and not for circulation. The included resources only serve as educational purpose. The material would be removed if there is concern regarding the copyright.</p>
     </div>
-
-    <!-- RIGHT PANE: Reference Viewer -->
-    <div class="right-pane">
-      <h3>Reference Materials</h3>
-      
-      <div class="reference-links">
-        <p><a id="templateLink" href="#" target="_blank" style="display:none; font-size:0.95rem; color: #0056b3;">View template reference</a></p>
-        <p><a id="templateLink2" href="#" target="_blank" style="display:none; font-size:0.95rem; color: #0056b3;">Quick Reference</a></p>
-        <p id="placeholderText" class="muted">Select a template on the left to view its reference documents here.</p>
+    <div class="header-right">
+      <div class="mode-switch" role="tablist" aria-label="App mode">
+        <button type="button" id="modeFormatBtn" class="active" role="tab" aria-selected="true" data-mode="format">Format</button>
+        <button type="button" id="modeEditBtn" role="tab" aria-selected="false" data-mode="edit">Edit templates</button>
       </div>
-
-      <div id="pdfContainer">
-        <iframe id="pdfViewer" src="" title="Reference Viewer"></iframe>
+      <div class="header-status" id="templateStatus" role="status" aria-live="polite">
+        <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+        <span id="statusText">Loading templates…</span>
       </div>
+    </div>
+  </header>
+
+  <div class="app-body mode-format" id="appBody">
+
+    <!-- ========== FORMAT MODE ========== -->
+      <!-- LEFT PANE: Formatter & Inputs -->
+      <main class="left-pane format-only">
+
+        <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
+
+        <section class="card" aria-labelledby="tpl-card-title">
+          <div class="card-header">
+            <h2 class="card-title" id="tpl-card-title">Template</h2>
+            <button type="button" id="loadCsv" class="btn-ghost" title="Reload templates from sheet">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Load templates
+            </button>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="templateFilter">Filter templates</label>
+            <div class="template-controls">
+              <div class="filter-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input type="search" id="templateFilter" placeholder="Search by name…" autocomplete="off" aria-controls="templateSelect"/>
+              </div>
+              <div>
+                <label class="section-label" for="templateSelect" style="margin-top:0.35rem">Choose template</label>
+                <select id="templateSelect" aria-describedby="filterHint">
+                  <option value="">— none —</option>
+                </select>
+                <p id="filterHint" class="muted" style="margin:0.4rem 0 0">Or paste a report manually below.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions-bar" role="toolbar" aria-label="Report actions">
+          <button type="button" id="formatBtn" class="btn-primary">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+            Format Report
+          </button>
+          <button type="button" id="copyBtn" class="btn-secondary">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            Copy to clipboard
+          </button>
+          <button type="button" id="downloadBtn" class="btn-secondary">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+            Download .txt
+          </button>
+        </div>
+
+        <div class="io-grid">
+          <section class="card" aria-labelledby="input-card-title">
+            <div class="card-header">
+              <h2 class="card-title" id="input-card-title">Unformatted input</h2>
+            </div>
+            <label class="section-label" for="inputText">Report text</label>
+            <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa" spellcheck="false"></textarea>
+          </section>
+
+          <section class="card" aria-labelledby="output-card-title">
+            <div class="card-header">
+              <h2 class="card-title" id="output-card-title">Formatted report</h2>
+            </div>
+            <pre id="output" class="output-pre" aria-live="polite" aria-label="Formatted report output"></pre>
+          </section>
+        </div>
+
+        <p class="disclaimer">Created by Eric Fu, 2025. For personal use. Non-profit and not for circulation. The included resources only serve as educational purpose. The material would be removed if there is concern regarding the copyright.</p>
+      </main>
+
+      <!-- RIGHT PANE: Reference Viewer -->
+      <aside class="right-pane format-only" aria-label="Reference materials">
+        <div class="ref-header">
+          <h2>Reference materials</h2>
+        </div>
+
+        <div class="reference-links" id="referenceLinks">
+          <a id="templateLink" class="ref-chip" href="#" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+            <span>View template reference</span>
+          </a>
+          <a id="templateLink2" class="ref-chip" href="#" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Quick Reference</span>
+          </a>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+          </div>
+          <strong id="emptyTitle">No template selected</strong>
+          <p id="emptyBody">Choose a template on the left to view its reference documents and PDF here.</p>
+        </div>
+        <!-- Keep placeholderText id for JS compatibility; visually unused -->
+        <p id="placeholderText" class="muted" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Select a template on the left to view its reference documents here.</p>
+
+        <div id="pdfContainer">
+          <iframe id="pdfViewer" src="" title="Reference Viewer"></iframe>
+        </div>
+      </aside>
+
+    <!-- ========== EDIT TEMPLATES MODE ========== -->
+    <div class="edit-pane" id="editPane" hidden>
+      <aside class="edit-list-pane" aria-label="Template list">
+        <div class="edit-list-toolbar">
+          <div class="card-header" style="margin-bottom:0">
+            <h2 class="card-title">Templates</h2>
+            <span id="dirtyBadge" class="dirty-badge" title="Unsaved edits relative to last loaded sheet">Unsaved</span>
+          </div>
+          <div class="filter-wrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="search" id="editFilter" placeholder="Search templates…" autocomplete="off" aria-controls="tplList"/>
+          </div>
+          <div class="edit-list-actions">
+            <button type="button" id="newTplBtn" class="btn-secondary" title="Add a new template">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              New
+            </button>
+            <button type="button" id="dupTplBtn" class="btn-secondary" title="Duplicate selected" disabled>
+              Duplicate
+            </button>
+            <button type="button" id="delTplBtn" class="btn-danger" title="Delete selected" disabled>
+              Delete
+            </button>
+          </div>
+        </div>
+        <ul class="tpl-list" id="tplList" role="listbox" aria-label="Editable templates"></ul>
+      </aside>
+
+      <main class="edit-form-pane">
+        <div id="editorEmpty" class="editor-empty">
+          <div class="empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <strong>Select a template to edit</strong>
+          <p>Or create a new one. Changes apply in this session immediately; use Save to Google Sheet to copy a sync package for CodeDesk.</p>
+        </div>
+
+        <section class="card editor-form hidden" id="editorForm" aria-labelledby="editor-card-title">
+          <div class="card-header">
+            <h2 class="card-title" id="editor-card-title">Edit template</h2>
+            <span id="formDirtyBadge" class="dirty-badge">Modified</span>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="editName">Name</label>
+            <input type="text" id="editName" autocomplete="off" spellcheck="false"/>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="editBody">Content</label>
+            <textarea id="editBody" spellcheck="false" placeholder="Template body (report fields)…"></textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="editLink">Primary reference URL</label>
+            <input type="url" id="editLink" placeholder="https://…" autocomplete="off" spellcheck="false"/>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="editLink2">Quick reference URL</label>
+            <input type="url" id="editLink2" placeholder="https://… (optional)" autocomplete="off" spellcheck="false"/>
+          </div>
+
+          <div class="actions-bar" style="margin-top:0.25rem" role="toolbar" aria-label="Editor actions">
+            <button type="button" id="saveSheetBtn" class="btn-primary" title="Copy sync package for CodeDesk">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+              Save to Google Sheet
+            </button>
+            <button type="button" id="downloadSyncBtn" class="btn-secondary" title="Download sync JSON file">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download sync JSON
+            </button>
+            <button type="button" id="discardBtn" class="btn-secondary" title="Reload from last loaded CSV">
+              Discard changes
+            </button>
+          </div>
+
+          <p class="sync-note">
+            GitHub Pages cannot write to Google Sheets. <strong>Save to Google Sheet</strong> applies edits in this browser session and copies a sync package JSON — paste it in CodeDesk and say <code>save</code>. Optionally set <code>window.TEMPLATE_SYNC_URL</code> for a future Apps Script POST.
+          </p>
+        </section>
+      </main>
     </div>
 
   </div>
 
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    <span id="toastMsg">Copied to clipboard</span>
+  </div>
+
 <script>
+/* Optional: set to an Apps Script web app URL to POST sync packages */
+window.TEMPLATE_SYNC_URL = window.TEMPLATE_SYNC_URL || '';
+
+const SPREADSHEET_ID = '1312knnJayUkaTBgVsTXa5Wi8hcKOzP9amgOFLn2ssP0';
+const SHEET_NAME = 'Sheet1';
+const HEADER_ROW = ['Template name', 'Template content', 'Link', 'Quick reference'];
+
 /* ---------- CSV parser that handles quoted fields with embedded newlines ---------- */
 function parseCSV(text){
   const rows = [];
@@ -169,7 +1198,7 @@ function wrapWords(text, maxWidth){
 
 function formatReportFromInput(inputText){
   const inLines = inputText.split(/\r?\n/);
-  const indent = 40; 
+  const indent = 40;
   const maxTotal = 80;
   const valueWidth = maxTotal - indent;
   const outLines = [];
@@ -204,46 +1233,206 @@ function formatReportFromInput(inputText){
   return outLines.join('\n');
 }
 
+/* ----------------- Unified template model ----------------- */
+function detectIsSection(name, body, link, link2){
+  const n = (name || '').trim();
+  if(!n) return false;
+  if(/^-{3,}.+-{3,}$/.test(n)) return true;
+  if(n.startsWith('---') && !(body || '').trim() && !(link || '').trim() && !(link2 || '').trim()) return true;
+  return false;
+}
+
+function cloneRows(rows){
+  return rows.map(r => ({
+    name: r.name,
+    body: r.body,
+    link: r.link,
+    link2: r.link2,
+    isSection: !!r.isSection
+  }));
+}
+
+function rowsEqual(a, b){
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function parseRowsFromCSV(csvRows){
+  const out = [];
+  for(let i = 1; i < csvRows.length; i++){
+    const r = csvRows[i];
+    const name = (r[0] || '').toString().trim();
+    const body = (r[1] || '').toString();
+    const link = (r[2] || '').toString().trim();
+    const link2 = (r[3] || '').toString().trim();
+    if(!name) continue;
+    out.push({
+      name,
+      body,
+      link,
+      link2,
+      isSection: detectIsSection(name, body, link, link2)
+    });
+  }
+  return out;
+}
+
+function recomputeIsSection(row){
+  row.isSection = detectIsSection(row.name, row.body, row.link, row.link2);
+  return row;
+}
+
 /* ----------------- UI wiring ----------------- */
 const csvInput = document.getElementById('csvUrl');
 const loadCsvBtn = document.getElementById('loadCsv');
 const templateSelect = document.getElementById('templateSelect');
+const templateFilter = document.getElementById('templateFilter');
 const inputText = document.getElementById('inputText');
 const formatBtn = document.getElementById('formatBtn');
 const outputEl = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const placeholderText = document.getElementById('placeholderText');
+const emptyState = document.getElementById('emptyState');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const toastEl = document.getElementById('toast');
+const toastMsg = document.getElementById('toastMsg');
+const appBody = document.getElementById('appBody');
+const editPane = document.getElementById('editPane');
+const modeFormatBtn = document.getElementById('modeFormatBtn');
+const modeEditBtn = document.getElementById('modeEditBtn');
+const editFilter = document.getElementById('editFilter');
+const tplList = document.getElementById('tplList');
+const dirtyBadge = document.getElementById('dirtyBadge');
+const formDirtyBadge = document.getElementById('formDirtyBadge');
+const editorEmpty = document.getElementById('editorEmpty');
+const editorForm = document.getElementById('editorForm');
+const editName = document.getElementById('editName');
+const editBody = document.getElementById('editBody');
+const editLink = document.getElementById('editLink');
+const editLink2 = document.getElementById('editLink2');
+const newTplBtn = document.getElementById('newTplBtn');
+const dupTplBtn = document.getElementById('dupTplBtn');
+const delTplBtn = document.getElementById('delTplBtn');
+const saveSheetBtn = document.getElementById('saveSheetBtn');
+const downloadSyncBtn = document.getElementById('downloadSyncBtn');
+const discardBtn = document.getElementById('discardBtn');
 
-function populateTemplates(rows) {
-  templateSelect.innerHTML = '<option value="">-- none --</option>';
-  const templates = [];
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    const name = (r[0] || '').toString().trim();
-    const body = (r[1] || '').toString();
-    const link = (r[2] || '').toString().trim();
-    const link2 = (r[3] || '').toString().trim();
-    if (name) {
-      const opt = document.createElement('option');
-      opt.value = templates.length;
-      opt.textContent = name;
-      templateSelect.appendChild(opt);
-      templates.push({ name, body, link, link2 });
-    }
-  }
-  templateSelect._templates = templates;
+/** @type {{name:string,body:string,link:string,link2:string,isSection:boolean}[]} */
+let allRows = [];
+/** Snapshot from last CSV load (Discard restores to this) */
+let baselineRows = [];
+let selectedIndex = -1;
+let suppressFormApply = false;
+let currentMode = 'format';
+/** Snapshot of selected row at selection time (for form dirty badge) */
+let selectionSnapshot = null;
+
+let toastTimer = null;
+
+function showToast(message){
+  toastMsg.textContent = message;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
 
+function setStatus(state, text){
+  statusDot.classList.remove('ready', 'loading', 'dirty');
+  if(state) statusDot.classList.add(state);
+  statusText.textContent = text;
+}
+
+function updateDirtyUI(){
+  const dirty = !rowsEqual(allRows, baselineRows);
+  dirtyBadge.classList.toggle('show', dirty);
+  if(selectedIndex >= 0 && selectedIndex < allRows.length && selectionSnapshot){
+    const r = allRows[selectedIndex];
+    const formDirty =
+      r.name !== selectionSnapshot.name ||
+      r.body !== selectionSnapshot.body ||
+      r.link !== selectionSnapshot.link ||
+      r.link2 !== selectionSnapshot.link2;
+    formDirtyBadge.classList.toggle('show', formDirty);
+  } else {
+    formDirtyBadge.classList.remove('show');
+  }
+  const n = allRows.filter(r => !r.isSection).length;
+  const base = n === 1 ? '1 template' : n + ' templates';
+  if(dirty){
+    setStatus('dirty', base + ' · unsaved');
+  } else if(allRows.length){
+    setStatus('ready', base);
+  }
+}
+
+/* ----- Format mode select (non-section rows only) ----- */
+function syncFormatSelect(){
+  const templates = allRows.filter(r => !r.isSection);
+  templateSelect._templates = templates;
+  templateSelect._allOptions = templates.map((t, i) => ({ value: String(i), text: t.name }));
+  renderTemplateOptions(templateFilter.value || '');
+}
+
+function populateFromRows(rows, { asBaseline = true } = {}){
+  allRows = cloneRows(rows);
+  if(asBaseline) baselineRows = cloneRows(rows);
+  syncFormatSelect();
+  renderEditorList();
+  updateDirtyUI();
+  const n = allRows.filter(r => !r.isSection).length;
+  setStatus('ready', n === 1 ? '1 template' : n + ' templates');
+}
+
+function populateTemplates(csvRows){
+  populateFromRows(parseRowsFromCSV(csvRows), { asBaseline: true });
+}
+
+function renderTemplateOptions(filterQuery){
+  const q = (filterQuery || '').trim().toLowerCase();
+  const all = templateSelect._allOptions || [];
+  const previous = templateSelect.value;
+  templateSelect.innerHTML = '<option value="">— none —</option>';
+  let visible = 0;
+  for(const opt of all){
+    if(q && !opt.text.toLowerCase().includes(q)) continue;
+    const el = document.createElement('option');
+    el.value = opt.value;
+    el.textContent = opt.text;
+    templateSelect.appendChild(el);
+    visible++;
+  }
+  // Restore selection if still visible
+  if(previous && [...templateSelect.options].some(o => o.value === previous)){
+    templateSelect.value = previous;
+  }
+  if(q){
+    const hint = document.getElementById('filterHint');
+    hint.textContent = visible === 0
+      ? 'No templates match your filter.'
+      : (visible + ' match' + (visible === 1 ? '' : 'es') + '. Or paste a report manually below.');
+  } else {
+    document.getElementById('filterHint').textContent = 'Or paste a report manually below.';
+  }
+}
+
+templateFilter.addEventListener('input', () => {
+  renderTemplateOptions(templateFilter.value);
+});
+
 async function fetchAndLoadCSV(url){
+  setStatus('loading', 'Loading templates…');
   try{
     const res = await fetch(url);
     if(!res.ok) throw new Error('Fetch failed: ' + res.status);
     const text = await res.text();
     const rows = parseCSV(text);
     populateTemplates(rows);
+    selectedIndex = -1;
+    showEditorSelection();
   } catch(err){
     console.error(err);
+    setStatus('', 'Templates unavailable');
     alert('Failed to load template: ' + err.message + '\nYou can still paste templates manually.');
   }
 }
@@ -268,6 +1457,9 @@ templateSelect.addEventListener('change', async () => {
   linkE2.style.display = 'none';
   pdfContainer.style.display = 'none';
   placeholderText.style.display = 'block';
+  emptyState.classList.remove('hidden');
+  document.getElementById('emptyTitle').textContent = 'No template selected';
+  document.getElementById('emptyBody').textContent = 'Choose a template on the left to view its reference documents and PDF here.';
   pdfViewer.src = '';
 
   if (idx === '') return;
@@ -286,8 +1478,8 @@ templateSelect.addEventListener('change', async () => {
     let pdfUrl = tpl.link.trim();
 
     linkEl.href = tpl.link;
-    linkEl.textContent = `View reference for ${tpl.name}`;
-    linkEl.style.display = 'inline';
+    linkEl.querySelector('span').textContent = `View reference for ${tpl.name}`;
+    linkEl.style.display = 'inline-flex';
 
     pdfViewer.src = pdfUrl;
     pdfContainer.style.display = 'block';
@@ -297,19 +1489,23 @@ templateSelect.addEventListener('change', async () => {
   if (tpl.link2 && /^https?:\/\//i.test(tpl.link2)) {
     hasReference = true;
     linkE2.href = tpl.link2;
-    linkE2.textContent = `Quick reference for ${tpl.name}`;
-    linkE2.style.display = 'inline';
+    linkE2.querySelector('span').textContent = `Quick reference for ${tpl.name}`;
+    linkE2.style.display = 'inline-flex';
   }
 
   if(hasReference) {
       placeholderText.style.display = 'none';
+      emptyState.classList.add('hidden');
+  } else {
+      document.getElementById('emptyTitle').textContent = 'No reference documents';
+      document.getElementById('emptyBody').textContent = 'This template has no linked PDF or quick reference. You can still format the report on the left.';
   }
 
   // Auto-output
   const out = formatReportFromInput(inputText.value || '');
   outputEl.textContent = out || '(no output)';
 });
-  
+
 formatBtn.addEventListener('click', ()=>{
   const out = formatReportFromInput(inputText.value || '');
   outputEl.textContent = out || '(no output)';
@@ -320,7 +1516,7 @@ copyBtn.addEventListener('click', async ()=>{
   if(!text) return alert('Nothing to copy');
   try{
     await navigator.clipboard.writeText(text);
-    alert('Copied to clipboard');
+    showToast('Copied to clipboard');
   }catch(e){ alert('Copy failed: ' + e.message); }
 });
 
@@ -336,6 +1532,247 @@ downloadBtn.addEventListener('click', ()=>{
   a.remove();
   URL.revokeObjectURL(a.href);
 });
+
+/* ----------------- Mode switch ----------------- */
+function setMode(mode){
+  currentMode = mode;
+  const isEdit = mode === 'edit';
+  appBody.classList.toggle('mode-edit', isEdit);
+  appBody.classList.toggle('mode-format', !isEdit);
+  editPane.hidden = !isEdit;
+  modeFormatBtn.classList.toggle('active', !isEdit);
+  modeEditBtn.classList.toggle('active', isEdit);
+  modeFormatBtn.setAttribute('aria-selected', String(!isEdit));
+  modeEditBtn.setAttribute('aria-selected', String(isEdit));
+  if(isEdit){
+    renderEditorList();
+    showEditorSelection();
+  } else {
+    const prev = templateSelect.value;
+    syncFormatSelect();
+    // Re-apply selection so Format input/PDF pick up in-memory edits
+    if(prev && [...templateSelect.options].some(o => o.value === prev)){
+      templateSelect.value = prev;
+      templateSelect.dispatchEvent(new Event('change'));
+    }
+  }
+}
+
+modeFormatBtn.addEventListener('click', () => setMode('format'));
+modeEditBtn.addEventListener('click', () => setMode('edit'));
+
+/* ----------------- Editor ----------------- */
+function renderEditorList(){
+  const q = (editFilter.value || '').trim().toLowerCase();
+  tplList.innerHTML = '';
+  let visible = 0;
+  allRows.forEach((row, idx) => {
+    if(q && !row.name.toLowerCase().includes(q)) return;
+    visible++;
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tpl-list-item' + (row.isSection ? ' section' : '') + (idx === selectedIndex ? ' active' : '');
+    btn.textContent = row.name || '(unnamed)';
+    btn.title = row.name;
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', String(idx === selectedIndex));
+    btn.addEventListener('click', () => selectTemplate(idx));
+    li.appendChild(btn);
+    tplList.appendChild(li);
+  });
+  if(visible === 0){
+    const empty = document.createElement('li');
+    empty.className = 'tpl-list-empty';
+    empty.textContent = allRows.length === 0 ? 'No templates loaded.' : 'No matches.';
+    tplList.appendChild(empty);
+  }
+  const hasSel = selectedIndex >= 0 && selectedIndex < allRows.length;
+  dupTplBtn.disabled = !hasSel;
+  delTplBtn.disabled = !hasSel;
+}
+
+function showEditorSelection(){
+  const hasSel = selectedIndex >= 0 && selectedIndex < allRows.length;
+  editorEmpty.classList.toggle('hidden', hasSel);
+  editorForm.classList.toggle('hidden', !hasSel);
+  dupTplBtn.disabled = !hasSel;
+  delTplBtn.disabled = !hasSel;
+  if(!hasSel){
+    selectionSnapshot = null;
+    formDirtyBadge.classList.remove('show');
+    return;
+  }
+  const r = allRows[selectedIndex];
+  selectionSnapshot = { name: r.name, body: r.body, link: r.link, link2: r.link2, isSection: r.isSection };
+  suppressFormApply = true;
+  editName.value = r.name;
+  editBody.value = r.body;
+  editLink.value = r.link;
+  editLink2.value = r.link2;
+  suppressFormApply = false;
+  updateDirtyUI();
+}
+
+function selectTemplate(idx){
+  applyFormToRow();
+  selectedIndex = idx;
+  renderEditorList();
+  showEditorSelection();
+}
+
+function applyFormToRow(){
+  if(suppressFormApply) return;
+  if(selectedIndex < 0 || selectedIndex >= allRows.length) return;
+  const r = allRows[selectedIndex];
+  const name = editName.value;
+  const body = editBody.value;
+  const link = editLink.value.trim();
+  const link2 = editLink2.value.trim();
+  if(r.name === name && r.body === body && r.link === link && r.link2 === link2) return;
+  r.name = name;
+  r.body = body;
+  r.link = link;
+  r.link2 = link2;
+  recomputeIsSection(r);
+  syncFormatSelect();
+  renderEditorList();
+  updateDirtyUI();
+}
+
+[editName, editBody, editLink, editLink2].forEach(el => {
+  el.addEventListener('input', () => {
+    applyFormToRow();
+  });
+});
+
+editFilter.addEventListener('input', () => renderEditorList());
+
+newTplBtn.addEventListener('click', () => {
+  applyFormToRow();
+  allRows.push({ name: 'New template', body: '', link: '', link2: '', isSection: false });
+  selectedIndex = allRows.length - 1;
+  syncFormatSelect();
+  renderEditorList();
+  showEditorSelection();
+  updateDirtyUI();
+  editName.focus();
+  editName.select();
+});
+
+dupTplBtn.addEventListener('click', () => {
+  if(selectedIndex < 0) return;
+  applyFormToRow();
+  const src = allRows[selectedIndex];
+  const copy = {
+    name: src.name + ' (copy)',
+    body: src.body,
+    link: src.link,
+    link2: src.link2,
+    isSection: src.isSection
+  };
+  allRows.splice(selectedIndex + 1, 0, copy);
+  selectedIndex = selectedIndex + 1;
+  syncFormatSelect();
+  renderEditorList();
+  showEditorSelection();
+  updateDirtyUI();
+});
+
+delTplBtn.addEventListener('click', () => {
+  if(selectedIndex < 0) return;
+  const name = allRows[selectedIndex].name || '(unnamed)';
+  if(!confirm('Delete "' + name + '"? This only affects the current session until you sync.')) return;
+  allRows.splice(selectedIndex, 1);
+  if(selectedIndex >= allRows.length) selectedIndex = allRows.length - 1;
+  syncFormatSelect();
+  renderEditorList();
+  showEditorSelection();
+  updateDirtyUI();
+});
+
+discardBtn.addEventListener('click', () => {
+  if(!confirm('Discard all edits and reload from the last loaded sheet data?')) return;
+  allRows = cloneRows(baselineRows);
+  selectedIndex = -1;
+  syncFormatSelect();
+  renderEditorList();
+  showEditorSelection();
+  updateDirtyUI();
+  showToast('Changes discarded');
+});
+
+function buildSyncPackage(){
+  applyFormToRow();
+  const rows = [HEADER_ROW.slice()];
+  for(const r of allRows){
+    if(r.isSection){
+      rows.push([r.name, '', '', '']);
+    } else {
+      rows.push([r.name, r.body, r.link, r.link2]);
+    }
+  }
+  return {
+    version: 1,
+    spreadsheetId: SPREADSHEET_ID,
+    sheet: SHEET_NAME,
+    exportedAt: new Date().toISOString(),
+    rows
+  };
+}
+
+async function copySyncPackage(){
+  const pkg = buildSyncPackage();
+  const json = JSON.stringify(pkg, null, 2);
+  try{
+    await navigator.clipboard.writeText(json);
+    showToast('Sync package copied — paste it to CodeDesk and say save');
+  }catch(e){
+    alert('Clipboard copy failed: ' + e.message + '\nUse Download sync JSON instead.');
+  }
+  // After a successful in-memory save + copy, treat current as "session saved"
+  // but keep dirty vs baseline until sheet is actually updated & reloaded.
+  updateDirtyUI();
+  maybePostSync(json);
+  return pkg;
+}
+
+function downloadSyncPackage(){
+  const pkg = buildSyncPackage();
+  const json = JSON.stringify(pkg, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'template-sync-' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  showToast('Sync JSON downloaded');
+  maybePostSync(json);
+}
+
+async function maybePostSync(json){
+  const url = (typeof window.TEMPLATE_SYNC_URL === 'string') ? window.TEMPLATE_SYNC_URL.trim() : '';
+  if(!url) return;
+  try{
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: json
+    });
+  }catch(_e){
+    /* ignore failures silently with a muted note */
+    const note = document.createElement('span');
+    note.style.cssText = 'position:fixed;bottom:0.5rem;right:0.75rem;font-size:0.7rem;color:#6b7a8d;opacity:0.7;z-index:999;pointer-events:none';
+    note.textContent = 'Sync URL POST failed (ignored)';
+    document.body.appendChild(note);
+    setTimeout(() => note.remove(), 4000);
+  }
+}
+
+saveSheetBtn.addEventListener('click', () => { copySyncPackage(); });
+downloadSyncBtn.addEventListener('click', () => { downloadSyncPackage(); });
 
 document.addEventListener("DOMContentLoaded", () => {
   const url = document.getElementById('csvUrl').value;
