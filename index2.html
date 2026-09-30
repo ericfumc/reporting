@@ -154,18 +154,19 @@
 
     .left-pane,
     .right-pane {
-      flex: 1;
       min-width: 0;
       overflow-y: auto;
       padding: 1.25rem 1.5rem;
     }
 
     .left-pane {
+      flex: 0 0 60%;
       border-right: 1px solid var(--border);
       background: var(--bg);
     }
 
     .right-pane {
+      flex: 1;
       display: flex;
       flex-direction: column;
       background: var(--surface-muted);
