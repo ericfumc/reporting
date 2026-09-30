@@ -111,45 +111,6 @@
       flex-shrink: 0;
     }
 
-    .mode-switch {
-      display: inline-flex;
-      background: rgba(255,255,255,0.1);
-      border-radius: 999px;
-      padding: 3px;
-      gap: 2px;
-    }
-
-    .mode-switch button {
-      appearance: none;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.75);
-      font-family: var(--font-ui);
-      font-size: 0.8rem;
-      font-weight: 550;
-      padding: 0.4rem 0.9rem;
-      border-radius: 999px;
-      cursor: pointer;
-      line-height: 1.3;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .mode-switch button:hover {
-      color: #fff;
-      background: rgba(255,255,255,0.08);
-    }
-
-    .mode-switch button.active {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    }
-
-    .mode-switch button:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px var(--accent-ring);
-    }
-
     .header-status {
       display: flex;
       align-items: center;
@@ -179,11 +140,6 @@
       animation: pulse 1s ease-in-out infinite;
     }
 
-    .status-dot.dirty {
-      background: #fbbf24;
-      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.3);
-    }
-
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
@@ -195,10 +151,6 @@
       height: calc(100vh - var(--header-h));
       overflow: hidden;
     }
-
-    .app-body.mode-edit .format-only { display: none !important; }
-    .app-body.mode-format .edit-pane { display: none; }
-    .app-body.mode-edit .edit-pane { display: flex; }
 
     .left-pane,
     .right-pane {
@@ -373,34 +325,10 @@
       font-style: italic;
     }
 
-    /* Filter above select */
     .template-controls {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .filter-wrap {
-      position: relative;
-    }
-
-    .filter-wrap svg {
-      position: absolute;
-      left: 0.7rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 15px;
-      height: 15px;
-      stroke: var(--text-muted);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      pointer-events: none;
-    }
-
-    .filter-wrap input {
-      padding-left: 2.1rem;
+      gap: 0;
     }
 
     /* ----- Buttons ----- */
@@ -641,190 +569,6 @@
       line-height: 1.45;
     }
 
-    /* ----- Editor mode ----- */
-    .edit-pane {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .edit-list-pane {
-      width: 340px;
-      flex-shrink: 0;
-      border-right: 1px solid var(--border);
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      padding: 1.25rem 1rem;
-      overflow: hidden;
-    }
-
-    .edit-form-pane {
-      flex: 1;
-      min-width: 0;
-      overflow-y: auto;
-      padding: 1.25rem 1.5rem;
-      background: var(--surface-muted);
-    }
-
-    .edit-list-toolbar {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      margin-bottom: 0.75rem;
-      flex-shrink: 0;
-    }
-
-    .edit-list-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-
-    .edit-list-actions button {
-      padding: 0.4rem 0.65rem;
-      font-size: 0.8rem;
-    }
-
-    .tpl-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      overflow-y: auto;
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-    }
-
-    .tpl-list li {
-      margin: 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tpl-list li:last-child {
-      border-bottom: none;
-    }
-
-    .tpl-list-item {
-      width: 100%;
-      text-align: left;
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      padding: 0.65rem 0.85rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tpl-list-item:hover {
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    .tpl-list-item.active {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .tpl-list-item.section {
-      color: var(--text-muted);
-      font-weight: 650;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      background: var(--surface-muted);
-    }
-
-    .tpl-list-item.section:hover {
-      background: #e8eef4;
-      color: var(--text-secondary);
-    }
-
-    .tpl-list-item.section.active {
-      background: var(--navy);
-      color: #fff;
-    }
-
-    .tpl-list-empty {
-      padding: 1.25rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    .dirty-badge {
-      display: none;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #92400e;
-      background: #fef3c7;
-      border: 1px solid #fcd34d;
-      padding: 0.25rem 0.6rem;
-      border-radius: 999px;
-    }
-
-    .dirty-badge.show {
-      display: inline-flex;
-    }
-
-    .dirty-badge::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #f59e0b;
-    }
-
-    .editor-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      min-height: 320px;
-      color: var(--text-muted);
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-    }
-
-    .editor-empty.hidden { display: none; }
-    .editor-form.hidden { display: none; }
-
-    .editor-form textarea {
-      min-height: 280px;
-    }
-
-    .sync-note {
-      margin-top: 0.75rem;
-      padding: 0.75rem 0.9rem;
-      background: var(--accent-soft);
-      border: 1px solid #b7d9d9;
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      line-height: 1.45;
-    }
-
-    .sync-note code {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      background: rgba(255,255,255,0.7);
-      padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-    }
-
     /* ----- Toast ----- */
     .toast {
       position: fixed;
@@ -872,20 +616,6 @@
         height: auto;
         min-height: calc(100vh - var(--header-h));
       }
-      .app-body.mode-edit {
-        flex-direction: column;
-      }
-      .edit-pane {
-        flex-direction: column;
-        height: auto;
-        overflow: visible;
-      }
-      .edit-list-pane {
-        width: 100%;
-        max-height: 40vh;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
       .left-pane {
         border-right: none;
         border-bottom: 1px solid var(--border);
@@ -918,7 +648,6 @@
       button { justify-content: center; }
       .header-status span#statusText { display: none; }
       .header-status { padding: 0.35rem; }
-      .mode-switch button { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -935,10 +664,6 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="mode-switch" role="tablist" aria-label="App mode">
-        <button type="button" id="modeFormatBtn" class="active" role="tab" aria-selected="true" data-mode="format">Format</button>
-        <button type="button" id="modeEditBtn" role="tab" aria-selected="false" data-mode="edit">Edit templates</button>
-      </div>
       <div class="header-status" id="templateStatus" role="status" aria-live="polite">
         <span class="status-dot" id="statusDot" aria-hidden="true"></span>
         <span id="statusText">Loading templates…</span>
@@ -946,11 +671,10 @@
     </div>
   </header>
 
-  <div class="app-body mode-format" id="appBody">
+  <div class="app-body" id="appBody">
 
-    <!-- ========== FORMAT MODE ========== -->
       <!-- LEFT PANE: Formatter & Inputs -->
-      <main class="left-pane format-only">
+      <main class="left-pane">
 
         <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
 
@@ -963,20 +687,19 @@
             </button>
           </div>
 
-          <div class="field-group">
-            <label class="section-label" for="templateFilter">Filter templates</label>
-            <div class="template-controls">
-              <div class="filter-wrap">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                <input type="search" id="templateFilter" placeholder="Search by name…" autocomplete="off" aria-controls="templateSelect"/>
-              </div>
-              <div>
-                <label class="section-label" for="templateSelect" style="margin-top:0.35rem">Choose template</label>
-                <select id="templateSelect" aria-describedby="filterHint">
-                  <option value="">— none —</option>
-                </select>
-                <p id="filterHint" class="muted" style="margin:0.4rem 0 0">Or paste a report manually below.</p>
-              </div>
+          <div class="template-controls">
+            <div class="field-group">
+              <label class="section-label" for="categorySelect">Categories</label>
+              <select id="categorySelect" aria-controls="templateSelect">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="section-label" for="templateSelect">Choose template</label>
+              <select id="templateSelect" aria-describedby="filterHint">
+                <option value="">— none —</option>
+              </select>
+              <p id="filterHint" class="muted" style="margin:0.4rem 0 0">Or paste a report manually below.</p>
             </div>
           </div>
         </section>
@@ -1017,7 +740,7 @@
       </main>
 
       <!-- RIGHT PANE: Reference Viewer -->
-      <aside class="right-pane format-only" aria-label="Reference materials">
+      <aside class="right-pane" aria-label="Reference materials">
         <div class="ref-header">
           <h2>Reference materials</h2>
         </div>
@@ -1048,90 +771,6 @@
         </div>
       </aside>
 
-    <!-- ========== EDIT TEMPLATES MODE ========== -->
-    <div class="edit-pane" id="editPane" hidden>
-      <aside class="edit-list-pane" aria-label="Template list">
-        <div class="edit-list-toolbar">
-          <div class="card-header" style="margin-bottom:0">
-            <h2 class="card-title">Templates</h2>
-            <span id="dirtyBadge" class="dirty-badge" title="Unsaved edits relative to last loaded sheet">Unsaved</span>
-          </div>
-          <div class="filter-wrap">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="search" id="editFilter" placeholder="Search templates…" autocomplete="off" aria-controls="tplList"/>
-          </div>
-          <div class="edit-list-actions">
-            <button type="button" id="newTplBtn" class="btn-secondary" title="Add a new template">
-              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              New
-            </button>
-            <button type="button" id="dupTplBtn" class="btn-secondary" title="Duplicate selected" disabled>
-              Duplicate
-            </button>
-            <button type="button" id="delTplBtn" class="btn-danger" title="Delete selected" disabled>
-              Delete
-            </button>
-          </div>
-        </div>
-        <ul class="tpl-list" id="tplList" role="listbox" aria-label="Editable templates"></ul>
-      </aside>
-
-      <main class="edit-form-pane">
-        <div id="editorEmpty" class="editor-empty">
-          <div class="empty-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          </div>
-          <strong>Select a template to edit</strong>
-          <p>Or create a new one. Changes apply in this session immediately; use Save to Google Sheet to copy a sync package for CodeDesk.</p>
-        </div>
-
-        <section class="card editor-form hidden" id="editorForm" aria-labelledby="editor-card-title">
-          <div class="card-header">
-            <h2 class="card-title" id="editor-card-title">Edit template</h2>
-            <span id="formDirtyBadge" class="dirty-badge">Modified</span>
-          </div>
-
-          <div class="field-group">
-            <label class="section-label" for="editName">Name</label>
-            <input type="text" id="editName" autocomplete="off" spellcheck="false"/>
-          </div>
-
-          <div class="field-group">
-            <label class="section-label" for="editBody">Content</label>
-            <textarea id="editBody" spellcheck="false" placeholder="Template body (report fields)…"></textarea>
-          </div>
-
-          <div class="field-group">
-            <label class="section-label" for="editLink">Primary reference URL</label>
-            <input type="url" id="editLink" placeholder="https://…" autocomplete="off" spellcheck="false"/>
-          </div>
-
-          <div class="field-group">
-            <label class="section-label" for="editLink2">Quick reference URL</label>
-            <input type="url" id="editLink2" placeholder="https://… (optional)" autocomplete="off" spellcheck="false"/>
-          </div>
-
-          <div class="actions-bar" style="margin-top:0.25rem" role="toolbar" aria-label="Editor actions">
-            <button type="button" id="saveSheetBtn" class="btn-primary" title="Copy sync package for CodeDesk">
-              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-              Save to Google Sheet
-            </button>
-            <button type="button" id="downloadSyncBtn" class="btn-secondary" title="Download sync JSON file">
-              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-              Download sync JSON
-            </button>
-            <button type="button" id="discardBtn" class="btn-secondary" title="Reload from last loaded CSV">
-              Discard changes
-            </button>
-          </div>
-
-          <p class="sync-note">
-            <strong>Save to Google Sheet</strong> writes your templates to the live spreadsheet via Apps Script, keeps this session updated, and also copies a sync package to the clipboard as a backup.
-          </p>
-        </section>
-      </main>
-    </div>
-
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
@@ -1140,13 +779,6 @@
   </div>
 
 <script>
-/* Optional: set to an Apps Script web app URL to POST sync packages */
-window.TEMPLATE_SYNC_URL = window.TEMPLATE_SYNC_URL || 'https://script.google.com/macros/s/AKfycbx8iqbLuww-V7vG3kwdle2166KjrPwbjJYZOueH1Z0Ea9BeHtioWV0_cSREoIJYpeTx/exec';
-
-const SPREADSHEET_ID = '1312knnJayUkaTBgVsTXa5Wi8hcKOzP9amgOFLn2ssP0';
-const SHEET_NAME = 'Sheet1';
-const HEADER_ROW = ['Template name', 'Template content', 'Link', 'Quick reference'];
-
 /* ---------- CSV parser that handles quoted fields with embedded newlines ---------- */
 function parseCSV(text){
   const rows = [];
@@ -1242,20 +874,6 @@ function detectIsSection(name, body, link, link2){
   return false;
 }
 
-function cloneRows(rows){
-  return rows.map(r => ({
-    name: r.name,
-    body: r.body,
-    link: r.link,
-    link2: r.link2,
-    isSection: !!r.isSection
-  }));
-}
-
-function rowsEqual(a, b){
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
 function parseRowsFromCSV(csvRows){
   const out = [];
   for(let i = 1; i < csvRows.length; i++){
@@ -1276,16 +894,52 @@ function parseRowsFromCSV(csvRows){
   return out;
 }
 
-function recomputeIsSection(row){
-  row.isSection = detectIsSection(row.name, row.body, row.link, row.link2);
-  return row;
+/** Strip leading/trailing dashes and whitespace for category display labels. */
+function categoryDisplayLabel(rawName){
+  return (rawName || '').replace(/^[\s\-]+/, '').replace(/[\s\-]+$/, '').trim() || (rawName || '').trim();
+}
+
+/**
+ * Build ordered categories from sheet rows.
+ * Section headers define categories; templates after a header belong to it
+ * until the next header. Pre-first-header templates → "Uncategorized" (only if any).
+ * @returns {{ raw: string, label: string, templates: object[] }[]}
+ */
+function buildCategories(rows){
+  const categories = [];
+  let current = null;
+  const uncategorized = [];
+
+  for(const row of rows){
+    if(row.isSection){
+      current = {
+        raw: row.name,
+        label: categoryDisplayLabel(row.name),
+        templates: []
+      };
+      categories.push(current);
+    } else if(current){
+      current.templates.push(row);
+    } else {
+      uncategorized.push(row);
+    }
+  }
+
+  if(uncategorized.length){
+    categories.unshift({
+      raw: 'Uncategorized',
+      label: 'Uncategorized',
+      templates: uncategorized
+    });
+  }
+  return categories;
 }
 
 /* ----------------- UI wiring ----------------- */
 const csvInput = document.getElementById('csvUrl');
 const loadCsvBtn = document.getElementById('loadCsv');
+const categorySelect = document.getElementById('categorySelect');
 const templateSelect = document.getElementById('templateSelect');
-const templateFilter = document.getElementById('templateFilter');
 const inputText = document.getElementById('inputText');
 const formatBtn = document.getElementById('formatBtn');
 const outputEl = document.getElementById('output');
@@ -1297,36 +951,11 @@ const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const toastEl = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
-const appBody = document.getElementById('appBody');
-const editPane = document.getElementById('editPane');
-const modeFormatBtn = document.getElementById('modeFormatBtn');
-const modeEditBtn = document.getElementById('modeEditBtn');
-const editFilter = document.getElementById('editFilter');
-const tplList = document.getElementById('tplList');
-const dirtyBadge = document.getElementById('dirtyBadge');
-const formDirtyBadge = document.getElementById('formDirtyBadge');
-const editorEmpty = document.getElementById('editorEmpty');
-const editorForm = document.getElementById('editorForm');
-const editName = document.getElementById('editName');
-const editBody = document.getElementById('editBody');
-const editLink = document.getElementById('editLink');
-const editLink2 = document.getElementById('editLink2');
-const newTplBtn = document.getElementById('newTplBtn');
-const dupTplBtn = document.getElementById('dupTplBtn');
-const delTplBtn = document.getElementById('delTplBtn');
-const saveSheetBtn = document.getElementById('saveSheetBtn');
-const downloadSyncBtn = document.getElementById('downloadSyncBtn');
-const discardBtn = document.getElementById('discardBtn');
 
 /** @type {{name:string,body:string,link:string,link2:string,isSection:boolean}[]} */
 let allRows = [];
-/** Snapshot from last CSV load (Discard restores to this) */
-let baselineRows = [];
-let selectedIndex = -1;
-let suppressFormApply = false;
-let currentMode = 'format';
-/** Snapshot of selected row at selection time (for form dirty badge) */
-let selectionSnapshot = null;
+/** @type {{ raw: string, label: string, templates: object[] }[]} */
+let categories = [];
 
 let toastTimer = null;
 
@@ -1338,87 +967,82 @@ function showToast(message){
 }
 
 function setStatus(state, text){
-  statusDot.classList.remove('ready', 'loading', 'dirty');
+  statusDot.classList.remove('ready', 'loading');
   if(state) statusDot.classList.add(state);
   statusText.textContent = text;
 }
 
-function updateDirtyUI(){
-  const dirty = !rowsEqual(allRows, baselineRows);
-  dirtyBadge.classList.toggle('show', dirty);
-  if(selectedIndex >= 0 && selectedIndex < allRows.length && selectionSnapshot){
-    const r = allRows[selectedIndex];
-    const formDirty =
-      r.name !== selectionSnapshot.name ||
-      r.body !== selectionSnapshot.body ||
-      r.link !== selectionSnapshot.link ||
-      r.link2 !== selectionSnapshot.link2;
-    formDirtyBadge.classList.toggle('show', formDirty);
-  } else {
-    formDirtyBadge.classList.remove('show');
-  }
-  const n = allRows.filter(r => !r.isSection).length;
-  const base = n === 1 ? '1 template' : n + ' templates';
-  if(dirty){
-    setStatus('dirty', base + ' · unsaved');
-  } else if(allRows.length){
-    setStatus('ready', base);
-  }
+function resetReferencePane(){
+  const linkEl = document.getElementById('templateLink');
+  const linkE2 = document.getElementById('templateLink2');
+  const pdfContainer = document.getElementById('pdfContainer');
+  const pdfViewer = document.getElementById('pdfViewer');
+
+  inputText.value = '';
+  outputEl.textContent = '';
+  linkEl.style.display = 'none';
+  linkE2.style.display = 'none';
+  pdfContainer.style.display = 'none';
+  placeholderText.style.display = 'block';
+  emptyState.classList.remove('hidden');
+  document.getElementById('emptyTitle').textContent = 'No template selected';
+  document.getElementById('emptyBody').textContent = 'Choose a template on the left to view its reference documents and PDF here.';
+  pdfViewer.src = '';
 }
 
-/* ----- Format mode select (non-section rows only) ----- */
-function syncFormatSelect(){
-  const templates = allRows.filter(r => !r.isSection);
+function populateCategorySelect(){
+  categorySelect.innerHTML = '';
+  if(categories.length === 0){
+    const el = document.createElement('option');
+    el.value = '';
+    el.textContent = '— none —';
+    categorySelect.appendChild(el);
+    return;
+  }
+  categories.forEach((cat, i) => {
+    const el = document.createElement('option');
+    el.value = String(i);
+    el.textContent = cat.label;
+    categorySelect.appendChild(el);
+  });
+  categorySelect.value = '0';
+}
+
+function populateTemplateSelectForCategory(catIndex){
+  templateSelect.innerHTML = '<option value="">— none —</option>';
+  const cat = categories[catIndex];
+  const templates = cat ? cat.templates : [];
   templateSelect._templates = templates;
-  templateSelect._allOptions = templates.map((t, i) => ({ value: String(i), text: t.name }));
-  renderTemplateOptions(templateFilter.value || '');
+  templates.forEach((t, i) => {
+    const el = document.createElement('option');
+    el.value = String(i);
+    el.textContent = t.name;
+    templateSelect.appendChild(el);
+  });
+  templateSelect.value = '';
+  document.getElementById('filterHint').textContent = 'Or paste a report manually below.';
 }
 
-function populateFromRows(rows, { asBaseline = true } = {}){
-  allRows = cloneRows(rows);
-  if(asBaseline) baselineRows = cloneRows(rows);
-  syncFormatSelect();
-  renderEditorList();
-  updateDirtyUI();
+function populateFromRows(rows){
+  allRows = rows.map(r => ({
+    name: r.name,
+    body: r.body,
+    link: r.link,
+    link2: r.link2,
+    isSection: !!r.isSection
+  }));
+  categories = buildCategories(allRows);
+  populateCategorySelect();
+  const idx = categories.length ? 0 : -1;
+  populateTemplateSelectForCategory(idx);
+  resetReferencePane();
   const n = allRows.filter(r => !r.isSection).length;
   setStatus('ready', n === 1 ? '1 template' : n + ' templates');
 }
 
 function populateTemplates(csvRows){
-  populateFromRows(parseRowsFromCSV(csvRows), { asBaseline: true });
+  populateFromRows(parseRowsFromCSV(csvRows));
 }
-
-function renderTemplateOptions(filterQuery){
-  const q = (filterQuery || '').trim().toLowerCase();
-  const all = templateSelect._allOptions || [];
-  const previous = templateSelect.value;
-  templateSelect.innerHTML = '<option value="">— none —</option>';
-  let visible = 0;
-  for(const opt of all){
-    if(q && !opt.text.toLowerCase().includes(q)) continue;
-    const el = document.createElement('option');
-    el.value = opt.value;
-    el.textContent = opt.text;
-    templateSelect.appendChild(el);
-    visible++;
-  }
-  // Restore selection if still visible
-  if(previous && [...templateSelect.options].some(o => o.value === previous)){
-    templateSelect.value = previous;
-  }
-  if(q){
-    const hint = document.getElementById('filterHint');
-    hint.textContent = visible === 0
-      ? 'No templates match your filter.'
-      : (visible + ' match' + (visible === 1 ? '' : 'es') + '. Or paste a report manually below.');
-  } else {
-    document.getElementById('filterHint').textContent = 'Or paste a report manually below.';
-  }
-}
-
-templateFilter.addEventListener('input', () => {
-  renderTemplateOptions(templateFilter.value);
-});
 
 async function fetchAndLoadCSV(url){
   setStatus('loading', 'Loading templates…');
@@ -1428,8 +1052,6 @@ async function fetchAndLoadCSV(url){
     const text = await res.text();
     const rows = parseCSV(text);
     populateTemplates(rows);
-    selectedIndex = -1;
-    showEditorSelection();
   } catch(err){
     console.error(err);
     setStatus('', 'Templates unavailable');
@@ -1441,6 +1063,12 @@ loadCsvBtn.addEventListener('click', ()=>{
   const url = csvInput.value.trim();
   if(!url){ alert('Paste the published CSV URL into the field above, then click Load templates.'); return; }
   fetchAndLoadCSV(url);
+});
+
+categorySelect.addEventListener('change', () => {
+  const idx = categorySelect.value === '' ? -1 : Number(categorySelect.value);
+  populateTemplateSelectForCategory(idx);
+  resetReferencePane();
 });
 
 templateSelect.addEventListener('change', async () => {
@@ -1532,247 +1160,6 @@ downloadBtn.addEventListener('click', ()=>{
   a.remove();
   URL.revokeObjectURL(a.href);
 });
-
-/* ----------------- Mode switch ----------------- */
-function setMode(mode){
-  currentMode = mode;
-  const isEdit = mode === 'edit';
-  appBody.classList.toggle('mode-edit', isEdit);
-  appBody.classList.toggle('mode-format', !isEdit);
-  editPane.hidden = !isEdit;
-  modeFormatBtn.classList.toggle('active', !isEdit);
-  modeEditBtn.classList.toggle('active', isEdit);
-  modeFormatBtn.setAttribute('aria-selected', String(!isEdit));
-  modeEditBtn.setAttribute('aria-selected', String(isEdit));
-  if(isEdit){
-    renderEditorList();
-    showEditorSelection();
-  } else {
-    const prev = templateSelect.value;
-    syncFormatSelect();
-    // Re-apply selection so Format input/PDF pick up in-memory edits
-    if(prev && [...templateSelect.options].some(o => o.value === prev)){
-      templateSelect.value = prev;
-      templateSelect.dispatchEvent(new Event('change'));
-    }
-  }
-}
-
-modeFormatBtn.addEventListener('click', () => setMode('format'));
-modeEditBtn.addEventListener('click', () => setMode('edit'));
-
-/* ----------------- Editor ----------------- */
-function renderEditorList(){
-  const q = (editFilter.value || '').trim().toLowerCase();
-  tplList.innerHTML = '';
-  let visible = 0;
-  allRows.forEach((row, idx) => {
-    if(q && !row.name.toLowerCase().includes(q)) return;
-    visible++;
-    const li = document.createElement('li');
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tpl-list-item' + (row.isSection ? ' section' : '') + (idx === selectedIndex ? ' active' : '');
-    btn.textContent = row.name || '(unnamed)';
-    btn.title = row.name;
-    btn.setAttribute('role', 'option');
-    btn.setAttribute('aria-selected', String(idx === selectedIndex));
-    btn.addEventListener('click', () => selectTemplate(idx));
-    li.appendChild(btn);
-    tplList.appendChild(li);
-  });
-  if(visible === 0){
-    const empty = document.createElement('li');
-    empty.className = 'tpl-list-empty';
-    empty.textContent = allRows.length === 0 ? 'No templates loaded.' : 'No matches.';
-    tplList.appendChild(empty);
-  }
-  const hasSel = selectedIndex >= 0 && selectedIndex < allRows.length;
-  dupTplBtn.disabled = !hasSel;
-  delTplBtn.disabled = !hasSel;
-}
-
-function showEditorSelection(){
-  const hasSel = selectedIndex >= 0 && selectedIndex < allRows.length;
-  editorEmpty.classList.toggle('hidden', hasSel);
-  editorForm.classList.toggle('hidden', !hasSel);
-  dupTplBtn.disabled = !hasSel;
-  delTplBtn.disabled = !hasSel;
-  if(!hasSel){
-    selectionSnapshot = null;
-    formDirtyBadge.classList.remove('show');
-    return;
-  }
-  const r = allRows[selectedIndex];
-  selectionSnapshot = { name: r.name, body: r.body, link: r.link, link2: r.link2, isSection: r.isSection };
-  suppressFormApply = true;
-  editName.value = r.name;
-  editBody.value = r.body;
-  editLink.value = r.link;
-  editLink2.value = r.link2;
-  suppressFormApply = false;
-  updateDirtyUI();
-}
-
-function selectTemplate(idx){
-  applyFormToRow();
-  selectedIndex = idx;
-  renderEditorList();
-  showEditorSelection();
-}
-
-function applyFormToRow(){
-  if(suppressFormApply) return;
-  if(selectedIndex < 0 || selectedIndex >= allRows.length) return;
-  const r = allRows[selectedIndex];
-  const name = editName.value;
-  const body = editBody.value;
-  const link = editLink.value.trim();
-  const link2 = editLink2.value.trim();
-  if(r.name === name && r.body === body && r.link === link && r.link2 === link2) return;
-  r.name = name;
-  r.body = body;
-  r.link = link;
-  r.link2 = link2;
-  recomputeIsSection(r);
-  syncFormatSelect();
-  renderEditorList();
-  updateDirtyUI();
-}
-
-[editName, editBody, editLink, editLink2].forEach(el => {
-  el.addEventListener('input', () => {
-    applyFormToRow();
-  });
-});
-
-editFilter.addEventListener('input', () => renderEditorList());
-
-newTplBtn.addEventListener('click', () => {
-  applyFormToRow();
-  allRows.push({ name: 'New template', body: '', link: '', link2: '', isSection: false });
-  selectedIndex = allRows.length - 1;
-  syncFormatSelect();
-  renderEditorList();
-  showEditorSelection();
-  updateDirtyUI();
-  editName.focus();
-  editName.select();
-});
-
-dupTplBtn.addEventListener('click', () => {
-  if(selectedIndex < 0) return;
-  applyFormToRow();
-  const src = allRows[selectedIndex];
-  const copy = {
-    name: src.name + ' (copy)',
-    body: src.body,
-    link: src.link,
-    link2: src.link2,
-    isSection: src.isSection
-  };
-  allRows.splice(selectedIndex + 1, 0, copy);
-  selectedIndex = selectedIndex + 1;
-  syncFormatSelect();
-  renderEditorList();
-  showEditorSelection();
-  updateDirtyUI();
-});
-
-delTplBtn.addEventListener('click', () => {
-  if(selectedIndex < 0) return;
-  const name = allRows[selectedIndex].name || '(unnamed)';
-  if(!confirm('Delete "' + name + '"? This only affects the current session until you sync.')) return;
-  allRows.splice(selectedIndex, 1);
-  if(selectedIndex >= allRows.length) selectedIndex = allRows.length - 1;
-  syncFormatSelect();
-  renderEditorList();
-  showEditorSelection();
-  updateDirtyUI();
-});
-
-discardBtn.addEventListener('click', () => {
-  if(!confirm('Discard all edits and reload from the last loaded sheet data?')) return;
-  allRows = cloneRows(baselineRows);
-  selectedIndex = -1;
-  syncFormatSelect();
-  renderEditorList();
-  showEditorSelection();
-  updateDirtyUI();
-  showToast('Changes discarded');
-});
-
-function buildSyncPackage(){
-  applyFormToRow();
-  const rows = [HEADER_ROW.slice()];
-  for(const r of allRows){
-    if(r.isSection){
-      rows.push([r.name, '', '', '']);
-    } else {
-      rows.push([r.name, r.body, r.link, r.link2]);
-    }
-  }
-  return {
-    version: 1,
-    spreadsheetId: SPREADSHEET_ID,
-    sheet: SHEET_NAME,
-    exportedAt: new Date().toISOString(),
-    rows
-  };
-}
-
-async function copySyncPackage(){
-  const pkg = buildSyncPackage();
-  const json = JSON.stringify(pkg, null, 2);
-  try{
-    await navigator.clipboard.writeText(json);
-    showToast('Sync package copied — paste it to CodeDesk and say save');
-  }catch(e){
-    alert('Clipboard copy failed: ' + e.message + '\nUse Download sync JSON instead.');
-  }
-  // After a successful in-memory save + copy, treat current as "session saved"
-  // but keep dirty vs baseline until sheet is actually updated & reloaded.
-  updateDirtyUI();
-  maybePostSync(json);
-  return pkg;
-}
-
-function downloadSyncPackage(){
-  const pkg = buildSyncPackage();
-  const json = JSON.stringify(pkg, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'template-sync-' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-  showToast('Sync JSON downloaded');
-  maybePostSync(json);
-}
-
-async function maybePostSync(json){
-  const url = (typeof window.TEMPLATE_SYNC_URL === 'string') ? window.TEMPLATE_SYNC_URL.trim() : '';
-  if(!url) return;
-  try{
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: json
-    });
-  }catch(_e){
-    /* ignore failures silently with a muted note */
-    const note = document.createElement('span');
-    note.style.cssText = 'position:fixed;bottom:0.5rem;right:0.75rem;font-size:0.7rem;color:#6b7a8d;opacity:0.7;z-index:999;pointer-events:none';
-    note.textContent = 'Sync URL POST failed (ignored)';
-    document.body.appendChild(note);
-    setTimeout(() => note.remove(), 4000);
-  }
-}
-
-saveSheetBtn.addEventListener('click', () => { copySyncPackage(); });
-downloadSyncBtn.addEventListener('click', () => { downloadSyncPackage(); });
 
 document.addEventListener("DOMContentLoaded", () => {
   const url = document.getElementById('csvUrl').value;
