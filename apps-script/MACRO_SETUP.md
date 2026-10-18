@@ -1,11 +1,11 @@
 # Macroscopic Formaliser — setup
 
-Turns raw cut-up dictation into formal macroscopic report text via **xAI Grok**, called from **Google Apps Script**. The UI lives on GitHub Pages (`macro.html`).
+Turns raw cut-up dictation into formal macroscopic report text via **Google Gemini**, called from **Google Apps Script**. The UI lives on GitHub Pages (`macro.html`).
 
-## 1. xAI API key
+## 1. Gemini API key
 
-1. Open [https://console.x.ai/](https://console.x.ai/) and create an API key.
-2. Confirm billing works for your account (Hong Kong / region as applicable).
+1. Open [Google AI Studio](https://aistudio.google.com/apikey) and create an API key.
+2. Free-tier keys work for light personal use; check [pricing / rate limits](https://ai.google.dev/gemini-api/docs/pricing) if you formalise high volume.
 
 ## 2. Apps Script project
 
@@ -14,11 +14,11 @@ Turns raw cut-up dictation into formal macroscopic report text via **xAI Grok**,
 3. Paste the contents of [`MacroFormalise.gs`](./MacroFormalise.gs) into `Code.gs` (replace the stub).
 4. **Project Settings** (gear) → **Script properties** → **Add script property**:
 
-| Property       | Value                                      |
-|----------------|--------------------------------------------|
-| `XAI_API_KEY`  | your xAI key (required)                    |
-| `MODEL`        | `grok-4.7` (optional; default in script)   |
-| `SYSTEM_PROMPT`| optional override of the built-in prompt   |
+| Property         | Value                                              |
+|------------------|----------------------------------------------------|
+| `GEMINI_API_KEY` | your AI Studio key (**required**)                  |
+| `MODEL`          | `gemini-3.5-flash-lite` (optional; default in script) |
+| `SYSTEM_PROMPT`  | optional override of the built-in pathology prompt |
 
 5. **Deploy** → **New deployment** → type **Web app**:
    - Execute as: **Me**
@@ -26,7 +26,7 @@ Turns raw cut-up dictation into formal macroscopic report text via **xAI Grok**,
 6. Authorise when prompted. Copy the web app URL ending in `/exec`.
 
 Smoke-test: open the `/exec` URL in a browser. You should see JSON like  
-`{"ok":true,"service":"macro-formalise","model":"grok-4.7","hasKey":true}`.
+`{"ok":true,"service":"macro-formalise","model":"gemini-3.5-flash-lite","hasKey":true}`.
 
 ## 3. Wire the GitHub Pages UI
 
@@ -57,8 +57,14 @@ If Formalise fails with a network/CORS error after you set the URL, re-deploy th
 
 ## Changing the model
 
-Set Script property `MODEL` to any chat model id from [xAI models docs](https://docs.x.ai/developers/models) (e.g. `grok-4.7`, `grok-4.6`). No need to edit `macro.html`.
+Set Script property `MODEL` to any text model id from the [Gemini models docs](https://ai.google.dev/gemini-api/docs/models), for example:
+
+- `gemini-3.5-flash-lite` — default; fast / free-tier friendly
+- `gemini-3.8-flash` — stronger Flash if you want richer prose
+- Avoid shut-down ids such as `gemini-2.0-flash`; `gemini-2.5-flash` is legacy-restricted for new projects
+
+No need to edit `macro.html`.
 
 ## Privacy
 
-Specimen text is sent to xAI via Google’s servers (UrlFetchApp). Follow hospital policy for PHI / identifiable data; strip patient identifiers if required.
+Specimen text is sent to Google’s Gemini API via Apps Script `UrlFetchApp`. Follow hospital policy for PHI / identifiable data; strip patient identifiers if required.

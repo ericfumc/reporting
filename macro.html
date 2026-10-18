@@ -339,7 +339,7 @@
       </div>
       <div>
         <h1 class="app-title">Macroscopic Formaliser</h1>
-        <p class="app-subtitle">Cut-up dictation → formal macro · Grok via Apps Script</p>
+        <p class="app-subtitle">Cut-up dictation → formal macro · Gemini via Apps Script</p>
       </div>
     </div>
     <nav class="header-nav" aria-label="Related tools">
@@ -388,9 +388,9 @@
 
     <p class="disclaimer">
       <strong>Setup:</strong> Deploy <code>apps-script/MacroFormalise.gs</code> as a Google Apps Script web app,
-      set Script Property <code>XAI_API_KEY</code>, then paste the <code>/exec</code> URL into
+      set Script Property <code>GEMINI_API_KEY</code>, then paste the <code>/exec</code> URL into
       <code>MACRO_FORMALISE_URL</code> below (see <code>apps-script/MACRO_SETUP.md</code>).
-      Text is sent to xAI via Google UrlFetchApp — follow local PHI rules.
+      Text is sent to Google Gemini via Apps Script UrlFetchApp — follow local PHI rules.
     </p>
 
   </main>
@@ -463,7 +463,7 @@ formaliseBtn.addEventListener('click', async () => {
   }
 
   formaliseBtn.disabled = true;
-  setStatus('loading', 'Formalising via Grok…');
+  setStatus('loading', 'Formalising via Gemini…');
 
   try {
     // text/plain avoids Apps Script CORS preflight (same as TEMPLATE_SYNC).
