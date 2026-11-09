@@ -867,10 +867,6 @@
                 <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
                 Copy to clipboard
               </button>
-              <button type="button" id="downloadBtn" class="btn-secondary">
-                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-                Download .txt
-              </button>
             </div>
           </section>
 
@@ -1162,7 +1158,6 @@ const inputText = document.getElementById('inputText');
 const formatBtn = document.getElementById('formatBtn');
 const outputEl = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
-const downloadBtn = document.getElementById('downloadBtn');
 const placeholderText = document.getElementById('placeholderText');
 const emptyState = document.getElementById('emptyState');
 const statusDot = document.getElementById('statusDot');
@@ -1364,19 +1359,6 @@ copyBtn.addEventListener('click', async ()=>{
     await navigator.clipboard.writeText(text);
     showToast('Copied to clipboard');
   }catch(e){ alert('Copy failed: ' + e.message); }
-});
-
-downloadBtn.addEventListener('click', ()=>{
-  const text = outputEl.textContent;
-  if(!text) return alert('Nothing to download');
-  const blob = new Blob([text], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Formatted_Report.txt';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
 });
 
 /* ----------------- Mode switch (Report | Block key) ----------------- */
