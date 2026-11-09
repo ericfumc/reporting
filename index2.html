@@ -30,6 +30,28 @@
       --header-h: 56px;
     }
 
+    /* Block key mode — pink tone (header/accents inherit via body.mode-block) */
+    body.mode-block {
+      --accent: #c2185b;
+      --accent-hover: #ad1457;
+      --accent-soft: #fce4ec;
+      --accent-ring: rgba(194, 24, 91, 0.35);
+      --navy: #6d214f;
+      --bg: #faf5f7;
+      --border: #e8d0da;
+      --border-strong: #d4a5b8;
+      --surface-muted: #fdf2f6;
+    }
+    body.mode-block .app-header {
+      box-shadow: 0 1px 0 rgba(194, 24, 91, 0.25);
+    }
+    body.mode-block .card {
+      border-color: var(--border);
+    }
+    body.mode-block .mode-switch {
+      background: rgba(255,255,255,0.14);
+    }
+
     *, *::before, *::after { box-sizing: border-box; }
 
     html, body {
@@ -111,6 +133,41 @@
       flex-shrink: 0;
     }
 
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .mode-switch button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 550;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      line-height: 1.3;
+      transition: background 0.15s, color 0.15s;
+    }
+    .mode-switch button:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+    .mode-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .mode-switch button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
     .header-status {
       display: flex;
       align-items: center;
@@ -150,6 +207,90 @@
       display: flex;
       height: calc(100vh - var(--header-h));
       overflow: hidden;
+    }
+    .app-body.mode-block .format-only { display: none !important; }
+    .app-body.mode-format .block-pane { display: none !important; }
+    .app-body.mode-block .block-pane { display: flex; }
+
+    .block-pane {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem 2rem;
+      background: var(--bg);
+      justify-content: center;
+    }
+    .block-pane-inner {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .block-pane .card { margin-bottom: 0; }
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0.3rem 0 0;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .chip {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 550;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .status-msg {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-left: 0.35rem;
+    }
+    .status-msg.ok { color: #0f766e; }
+    .status-msg.err { color: var(--danger); }
+    .block-pane .output-pre {
+      font-variant-ligatures: none;
+      white-space: pre;
+      overflow-x: auto;
+      min-height: 120px;
+    }
+    .block-pane .output-pre:empty::before {
+      content: "Formatted block key will appear here…";
+      white-space: normal;
+    }
+    .block-rules {
+      margin: 0;
+      padding-left: 1.15rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    .block-rules li { margin: 0.35rem 0; }
+    .block-rules code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--surface-muted);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
     }
 
     .left-pane,
@@ -649,10 +790,11 @@
       button { justify-content: center; }
       .header-status span#statusText { display: none; }
       .header-status { padding: 0.35rem; }
+      .mode-switch button { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
     }
   </style>
 </head>
-<body>
+<body class="mode-format">
 
   <header class="app-header">
     <div class="app-brand">
@@ -665,6 +807,10 @@
       </div>
     </div>
     <div class="header-right">
+      <div class="mode-switch" role="tablist" aria-label="App mode">
+        <button type="button" id="modeFormatBtn" class="active" role="tab" aria-selected="true" data-mode="format">Report</button>
+        <button type="button" id="modeBlockBtn" role="tab" aria-selected="false" data-mode="block">Block key</button>
+      </div>
       <div class="header-status" id="templateStatus" role="status" aria-live="polite">
         <span class="status-dot" id="statusDot" aria-hidden="true"></span>
         <span id="statusText">Loading templates…</span>
@@ -672,10 +818,10 @@
     </div>
   </header>
 
-  <div class="app-body" id="appBody">
+  <div class="app-body mode-format" id="appBody">
 
       <!-- LEFT PANE: Formatter & Inputs -->
-      <main class="left-pane">
+      <main class="left-pane format-only">
 
         <input id="csvUrl" type="hidden" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRIMyFywb76pgt3-m-p97o6y-Qul9HWgxX7V_0W7nvgCc1z5ogWejCUGRj0SlFzER9Gtk3DTJcqSiPv/pub?output=csv">
 
@@ -705,21 +851,6 @@
           </div>
         </section>
 
-        <div class="actions-bar" role="toolbar" aria-label="Report actions">
-          <button type="button" id="formatBtn" class="btn-primary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
-            Format Report
-          </button>
-          <button type="button" id="copyBtn" class="btn-secondary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            Copy to clipboard
-          </button>
-          <button type="button" id="downloadBtn" class="btn-secondary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-            Download .txt
-          </button>
-        </div>
-
         <div class="io-grid">
           <section class="card" aria-labelledby="input-card-title">
             <div class="card-header">
@@ -727,6 +858,16 @@
             </div>
             <label class="section-label" for="inputText">Report text</label>
             <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa" spellcheck="false"></textarea>
+            <div class="actions-bar" role="toolbar" aria-label="Report actions" style="margin:0.85rem 0 0">
+              <button type="button" id="formatBtn" class="btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+                Format Report
+              </button>
+              <button type="button" id="copyBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                Copy to clipboard
+              </button>
+            </div>
           </section>
 
           <section class="card" aria-labelledby="output-card-title">
@@ -741,7 +882,7 @@
       </main>
 
       <!-- RIGHT PANE: Reference Viewer -->
-      <aside class="right-pane" aria-label="Reference materials">
+      <aside class="right-pane format-only" aria-label="Reference materials">
         <div class="ref-header">
           <h2>Reference materials</h2>
         </div>
@@ -771,6 +912,78 @@
           <iframe id="pdfViewer" src="" title="Reference Viewer"></iframe>
         </div>
       </aside>
+
+    <!-- ========== BLOCK KEY MODE ========== -->
+    <div class="block-pane" id="blockPane" hidden>
+      <div class="block-pane-inner">
+        <section class="card" aria-labelledby="block-input-title">
+          <div class="card-header">
+            <h2 class="card-title" id="block-input-title">Block key input</h2>
+            <button type="button" id="blockLoadSample" class="btn-ghost" title="Load sample raw block keys">Load sample</button>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="blockDesignation">Specimen designation</label>
+            <input type="text" id="blockDesignation" value="I" placeholder="I / II / III / -" autocomplete="off" spellcheck="false"/>
+            <p class="field-hint">Roman numerals I–X, or − / blank for no prefix.</p>
+            <div class="chip-row" id="blockDesigChips" aria-label="Quick fill designation">
+              <button type="button" class="chip" data-desig="I">I</button>
+              <button type="button" class="chip" data-desig="II">II</button>
+              <button type="button" class="chip" data-desig="III">III</button>
+              <button type="button" class="chip" data-desig="IV">IV</button>
+              <button type="button" class="chip" data-desig="V">V</button>
+              <button type="button" class="chip" data-desig="VI">VI</button>
+              <button type="button" class="chip" data-desig="VII">VII</button>
+              <button type="button" class="chip" data-desig="VIII">VIII</button>
+              <button type="button" class="chip" data-desig="IX">IX</button>
+              <button type="button" class="chip" data-desig="X">X</button>
+              <button type="button" class="chip" data-desig="-">− (empty)</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="section-label" for="blockRaw">Raw block keys</label>
+            <textarea id="blockRaw" spellcheck="false" placeholder="Block 1 and Block 2: ABC&#10;Block 3 to Block 6: EFG"></textarea>
+            <p class="field-hint"><code style="font-family:var(--font-mono);font-size:0.75rem">and</code> = discrete blocks; <code style="font-family:var(--font-mono);font-size:0.75rem">to</code> = range.</p>
+          </div>
+
+          <div class="actions-bar" role="toolbar" aria-label="Block key actions" style="margin:0.25rem 0 0">
+            <button type="button" id="blockFormatBtn" class="btn-primary">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/><path d="M15 9l5 3-5 3"/></svg>
+              Format block key
+            </button>
+            <button type="button" id="blockClearBtn" class="btn-secondary">Clear</button>
+            <button type="button" id="blockCopyBtn" class="btn-secondary" disabled>
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+              Copy
+            </button>
+            <span class="status-msg" id="blockStatus" role="status"></span>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="block-output-title">
+          <div class="card-header">
+            <h2 class="card-title" id="block-output-title">Formatted block key</h2>
+          </div>
+          <pre id="blockOutput" class="output-pre" aria-live="polite" aria-label="Formatted block key output"></pre>
+        </section>
+
+        <section class="card" aria-labelledby="block-rules-title">
+          <div class="card-header">
+            <h2 class="card-title" id="block-rules-title">Rules</h2>
+          </div>
+          <ul class="block-rules">
+            <li>Discrete: <code>Block 1 and Block 2: ABC</code> → <code>(I-1)&amp;(I-2):  ABC;</code></li>
+            <li>Range: <code>Block 3 to Block 6: EFG</code> → <code>(I-3)-(I-6):  EFG.</code></li>
+            <li>Last line ends with <code>.</code>; earlier lines with <code>;</code></li>
+            <li>Descriptions aligned; shortest gap after <code>:</code> is two spaces</li>
+            <li>Designation <code>-</code> or blank → <code>(1)&amp;(2)</code> (no letter)</li>
+          </ul>
+        </section>
+
+        <p class="disclaimer">Created by Eric Fu, 2025. For personal use. Non-profit and not for circulation.</p>
+      </div>
+    </div>
 
   </div>
 
@@ -945,7 +1158,6 @@ const inputText = document.getElementById('inputText');
 const formatBtn = document.getElementById('formatBtn');
 const outputEl = document.getElementById('output');
 const copyBtn = document.getElementById('copyBtn');
-const downloadBtn = document.getElementById('downloadBtn');
 const placeholderText = document.getElementById('placeholderText');
 const emptyState = document.getElementById('emptyState');
 const statusDot = document.getElementById('statusDot');
@@ -1149,18 +1361,182 @@ copyBtn.addEventListener('click', async ()=>{
   }catch(e){ alert('Copy failed: ' + e.message); }
 });
 
-downloadBtn.addEventListener('click', ()=>{
-  const text = outputEl.textContent;
-  if(!text) return alert('Nothing to download');
-  const blob = new Blob([text], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Formatted_Report.txt';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
+/* ----------------- Mode switch (Report | Block key) ----------------- */
+const appBody = document.getElementById('appBody');
+const blockPane = document.getElementById('blockPane');
+const modeFormatBtn = document.getElementById('modeFormatBtn');
+const modeBlockBtn = document.getElementById('modeBlockBtn');
+let currentMode = 'format';
+
+function setMode(mode){
+  currentMode = mode;
+  const isBlock = mode === 'block';
+  const isFormat = !isBlock;
+  document.body.classList.toggle('mode-block', isBlock);
+  document.body.classList.toggle('mode-format', isFormat);
+  appBody.classList.toggle('mode-block', isBlock);
+  appBody.classList.toggle('mode-format', isFormat);
+  blockPane.hidden = !isBlock;
+  modeFormatBtn.classList.toggle('active', isFormat);
+  modeBlockBtn.classList.toggle('active', isBlock);
+  modeFormatBtn.setAttribute('aria-selected', String(isFormat));
+  modeBlockBtn.setAttribute('aria-selected', String(isBlock));
+  const tplStatus = document.getElementById('templateStatus');
+  if(tplStatus) tplStatus.style.visibility = isBlock ? 'hidden' : '';
+  if(isBlock) syncBlockDesigChips();
+}
+
+modeFormatBtn.addEventListener('click', () => setMode('format'));
+modeBlockBtn.addEventListener('click', () => setMode('block'));
+
+/* ----------------- Block key formatter ----------------- */
+const BLOCK_SAMPLE_RAW =
+  "Block 1 and Block 2: ABC\n" +
+  "Block 3 to Block 6: EFG";
+const blockDesigEl = document.getElementById('blockDesignation');
+const blockRawEl = document.getElementById('blockRaw');
+const blockOutputEl = document.getElementById('blockOutput');
+const blockStatusEl = document.getElementById('blockStatus');
+const blockFormatBtn = document.getElementById('blockFormatBtn');
+const blockCopyBtn = document.getElementById('blockCopyBtn');
+const blockClearBtn = document.getElementById('blockClearBtn');
+const blockLoadSampleBtn = document.getElementById('blockLoadSample');
+
+function normalizeBlockDesignation(raw){
+  const t = String(raw || '').trim();
+  if(!t || t === '-' || t === '–' || t === '—') return '';
+  return t;
+}
+
+function blockLabel(desig, n){
+  return desig ? '(' + desig + '-' + n + ')' : '(' + n + ')';
+}
+
+function parseBlockLine(line, desig){
+  const trimmed = line.trim();
+  if(!trimmed) return null;
+  const m = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
+  if(!m) throw new Error('Each line needs a description after ":", e.g. Block 1 and Block 2: ABC');
+  const left = m[1].trim();
+  const description = m[2].trim();
+  if(!description) throw new Error('Missing description after colon on: ' + left);
+
+  const rangeRe = /^block\s+(\d+)\s+(?:to|-|–|—)\s+block\s+(\d+)$/i;
+  const rm = left.match(rangeRe);
+  if(rm){
+    const a = Number(rm[1]), b = Number(rm[2]);
+    if(a > b) throw new Error('Range start > end: Block ' + a + ' to Block ' + b);
+    return { key: blockLabel(desig, a) + '-' + blockLabel(desig, b), description };
+  }
+
+  const discreteRe = /^block\s+\d+(?:\s*(?:,|and)\s*block\s+\d+)+$/i;
+  const singleRe = /^block\s+(\d+)$/i;
+  if(discreteRe.test(left) || singleRe.test(left)){
+    const nums = [];
+    const numRe = /block\s+(\d+)/gi;
+    let nm;
+    while((nm = numRe.exec(left)) !== null) nums.push(Number(nm[1]));
+    if(!nums.length) throw new Error('Could not read block numbers in: ' + left);
+    return { key: nums.map(n => blockLabel(desig, n)).join('&'), description };
+  }
+
+  throw new Error('Unrecognized block pattern: "' + left + '". Use "Block X and Block Y" or "Block X to Block Y".');
+}
+
+function formatBlockKey(desigRaw, rawText){
+  const desig = normalizeBlockDesignation(desigRaw);
+  const lines = String(rawText || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const parsed = [];
+  for(const line of lines){
+    if(!line.trim()) continue;
+    parsed.push(parseBlockLine(line, desig));
+  }
+  if(!parsed.length) throw new Error('Paste at least one raw block-key line.');
+  const maxKey = parsed.reduce((mx, p) => Math.max(mx, p.key.length), 0);
+  return parsed.map((p, idx) => {
+    const isLast = idx === parsed.length - 1;
+    const pad = 2 + (maxKey - p.key.length);
+    return p.key + ':' + ' '.repeat(pad) + p.description + (isLast ? '.' : ';');
+  }).join('\n');
+}
+
+function setBlockStatus(msg, kind){
+  blockStatusEl.textContent = msg || '';
+  blockStatusEl.className = 'status-msg' + (kind ? ' ' + kind : '');
+}
+
+function syncBlockDesigChips(){
+  document.querySelectorAll('#blockDesigChips .chip[data-desig]').forEach(chip => {
+    const v = chip.getAttribute('data-desig');
+    const active = (v === '-' && !(blockDesigEl.value || '').trim()) || v === (blockDesigEl.value || '').trim();
+    chip.classList.toggle('active', active);
+  });
+}
+
+function runBlockFormat(){
+  try{
+    const out = formatBlockKey(blockDesigEl.value, blockRawEl.value);
+    blockOutputEl.textContent = out;
+    blockCopyBtn.disabled = !out;
+    setBlockStatus('Formatted ' + out.split('\n').length + ' line(s).', 'ok');
+    syncBlockDesigChips();
+  }catch(err){
+    blockOutputEl.textContent = '';
+    blockCopyBtn.disabled = true;
+    setBlockStatus(err.message || String(err), 'err');
+  }
+}
+
+blockFormatBtn.addEventListener('click', runBlockFormat);
+blockClearBtn.addEventListener('click', () => {
+  blockRawEl.value = '';
+  blockOutputEl.textContent = '';
+  blockCopyBtn.disabled = true;
+  setBlockStatus('');
+  blockRawEl.focus();
 });
+blockLoadSampleBtn.addEventListener('click', () => {
+  if(!blockDesigEl.value.trim()) blockDesigEl.value = 'I';
+  blockRawEl.value = BLOCK_SAMPLE_RAW;
+  runBlockFormat();
+});
+document.querySelectorAll('#blockDesigChips .chip[data-desig]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    blockDesigEl.value = chip.getAttribute('data-desig');
+    syncBlockDesigChips();
+    if(blockRawEl.value.trim()) runBlockFormat();
+  });
+});
+blockDesigEl.addEventListener('input', () => {
+  syncBlockDesigChips();
+  if(blockRawEl.value.trim() && blockOutputEl.textContent) runBlockFormat();
+});
+blockCopyBtn.addEventListener('click', async () => {
+  const text = blockOutputEl.textContent || '';
+  if(!text) return;
+  try{
+    await navigator.clipboard.writeText(text);
+    setBlockStatus('Copied to clipboard.', 'ok');
+    showToast('Block key copied');
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try{
+      document.execCommand('copy');
+      setBlockStatus('Copied to clipboard.', 'ok');
+      showToast('Block key copied');
+    }catch(e2){
+      setBlockStatus('Copy failed — select the output and copy manually.', 'err');
+    }
+    document.body.removeChild(ta);
+  }
+});
+blockRawEl.value = BLOCK_SAMPLE_RAW;
+runBlockFormat();
 
 document.addEventListener("DOMContentLoaded", () => {
   const url = document.getElementById('csvUrl').value;
