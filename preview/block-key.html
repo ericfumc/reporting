@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Block key formatter (preview) — Pathology</title>
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --surface: #ffffff;
+      --surface-muted: #f5f7f9;
+      --border: #d5dde5;
+      --border-strong: #b8c4d0;
+      --text: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #6b7a8d;
+      --accent: #0d6e6e;
+      --accent-hover: #0a5858;
+      --accent-soft: #e6f3f3;
+      --accent-ring: rgba(13, 110, 110, 0.35);
+      --navy: #1e3a5f;
+      --danger: #b42318;
+      --danger-soft: #fef3f2;
+      --ok: #0f766e;
+      --ok-soft: #ecfdf5;
+      --shadow-sm: 0 1px 2px rgba(26, 35, 50, 0.04);
+      --shadow: 0 1px 3px rgba(26, 35, 50, 0.06), 0 4px 12px rgba(26, 35, 50, 0.04);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --font-ui: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Liberation Mono", Menlo, monospace;
+      --header-h: 56px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-header {
+      height: var(--header-h);
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .app-brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .app-brand-mark svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      font-weight: 400;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .header-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .header-nav a:hover {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+    }
+
+    .preview-banner {
+      background: #fff7ed;
+      border-bottom: 1px solid #fed7aa;
+      color: #9a3412;
+      font-size: 0.82rem;
+      padding: 0.65rem 1.5rem;
+      text-align: center;
+    }
+
+    .preview-banner strong { font-weight: 650; }
+
+    .app-main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.1rem 1.25rem 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 0 0 0.4rem;
+    }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0.3rem 0 0;
+    }
+
+    .field-group {
+      margin-bottom: 1rem;
+    }
+
+    .field-group:last-child { margin-bottom: 0; }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:hover,
+    textarea:hover { border-color: var(--border-strong); }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    button:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
+    textarea {
+      min-height: 160px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      padding: 0.85rem 1rem;
+      resize: vertical;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .chip {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 550;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    button {
+      font-family: var(--font-ui);
+      font-size: 0.875rem;
+      font-weight: 550;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-muted);
+      border-color: var(--border-strong);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: transparent;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .output-pre {
+      white-space: pre;
+      overflow-x: auto;
+      word-break: normal;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      min-height: 120px;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .output-pre:empty::before {
+      content: "Formatted block key will appear here…";
+      color: var(--text-muted);
+      font-style: italic;
+      white-space: normal;
+    }
+
+    .status-msg {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      min-height: 1.2em;
+    }
+
+    .status-msg.ok { color: var(--ok); }
+    .status-msg.err { color: var(--danger); }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .rules {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.55;
+    }
+
+    .rules code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.05rem 0.3rem;
+      color: var(--text-secondary);
+    }
+
+    .desig-wrap {
+      max-width: 220px;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="app-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 7h16M4 12h10M4 17h14"/>
+          <path d="M16 10l4 2-4 2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="app-title">Block key formatter (preview)</h1>
+        <p class="app-subtitle">Pathology · UI draft for comment</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="../index2.html">Cancer Report Formatter</a>
+    </nav>
+  </header>
+
+  <div class="preview-banner">
+    <strong>UI preview</strong> — working Format logic for comment. Not yet wired into the live formatter.
+  </div>
+
+  <main class="app-main">
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Input</h2>
+        <button type="button" class="btn-ghost" id="btnLoadSample">Load sample</button>
+      </div>
+
+      <div class="field-group desig-wrap">
+        <label class="section-label" for="designation">Specimen designation</label>
+        <input type="text" id="designation" value="I" placeholder="I / II / III / -" autocomplete="off" spellcheck="false"/>
+        <p class="field-hint">Use <code style="font-family:var(--font-mono);font-size:0.75rem">I</code>, <code style="font-family:var(--font-mono);font-size:0.75rem">II</code>, <code style="font-family:var(--font-mono);font-size:0.75rem">III</code>, or <code style="font-family:var(--font-mono);font-size:0.75rem">-</code> / blank for no prefix.</p>
+        <div class="chip-row" aria-label="Quick fill designation">
+          <button type="button" class="chip" data-desig="I">I</button>
+          <button type="button" class="chip" data-desig="II">II</button>
+          <button type="button" class="chip" data-desig="III">III</button>
+          <button type="button" class="chip" data-desig="-">− (empty)</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="section-label" for="raw">Raw block keys</label>
+        <textarea id="raw" spellcheck="false" placeholder="Block 1 and Block 2: ABC&#10;Block 3 to Block 6: EFG"></textarea>
+        <p class="field-hint"><code style="font-family:var(--font-mono);font-size:0.75rem">and</code> = discrete blocks; <code style="font-family:var(--font-mono);font-size:0.75rem">to</code> = range.</p>
+      </div>
+
+      <div class="actions-bar">
+        <button type="button" class="btn-primary" id="btnFormat">
+          <svg class="btn-icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h14"/><path d="M15 9l5 3-5 3"/></svg>
+          Format block key
+        </button>
+        <button type="button" class="btn-secondary" id="btnClear">Clear</button>
+        <span class="status-msg" id="status" role="status"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Formatted output</h2>
+        <button type="button" class="btn-secondary" id="btnCopy" disabled>
+          <svg class="btn-icon" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copy
+        </button>
+      </div>
+      <pre class="output-pre" id="output" aria-live="polite"></pre>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Rules (draft)</h2>
+      </div>
+      <ul class="rules">
+        <li>Discrete: <code>Block 1 and Block 2: ABC</code> → <code>(I-1)&amp;(I-2):  ABC;</code></li>
+        <li>Range: <code>Block 3 to Block 6: EFG</code> → <code>(I-3)-(I-6):  EFG.</code></li>
+        <li>Last line ends with <code>.</code>; earlier lines with <code>;</code></li>
+        <li>Descriptions aligned; shortest gap before the text after <code>:</code> is two spaces</li>
+        <li>Designation <code>-</code> or blank → <code>(1)&amp;(2)</code> (no letter)</li>
+      </ul>
+      <p class="muted" style="margin-top:0.85rem">Comment on labels, spacing, punctuation, or anything missing before we wire this into the Cancer Report Formatter.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const SAMPLE_RAW =
+        "Block 1 and Block 2: ABC\n" +
+        "Block 3 to Block 6: EFG";
+
+      const elDesig = document.getElementById("designation");
+      const elRaw = document.getElementById("raw");
+      const elOut = document.getElementById("output");
+      const elStatus = document.getElementById("status");
+      const btnFormat = document.getElementById("btnFormat");
+      const btnCopy = document.getElementById("btnCopy");
+      const btnClear = document.getElementById("btnClear");
+      const btnLoadSample = document.getElementById("btnLoadSample");
+
+      function normalizeDesignation(raw) {
+        const t = String(raw || "").trim();
+        if (!t || t === "-" || t === "–" || t === "—") return "";
+        return t;
+      }
+
+      function blockLabel(desig, n) {
+        return desig ? "(" + desig + "-" + n + ")" : "(" + n + ")";
+      }
+
+      /**
+       * Parse one raw line into { key, description } or null.
+       * Supports:
+       *   Block 1 and Block 2: desc
+       *   Block 3 to Block 6: desc
+       *   Block 1: desc
+       *   Block 1, Block 2 and Block 3: desc  (comma / and list → &)
+       */
+      function parseLine(line, desig) {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+
+        const m = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
+        if (!m) {
+          throw new Error('Each line needs a description after ":", e.g. Block 1 and Block 2: ABC');
+        }
+        const left = m[1].trim();
+        const description = m[2].trim();
+        if (!description) {
+          throw new Error("Missing description after colon on: " + left);
+        }
+
+        // Range: Block X to Block Y  (also "Block X - Block Y")
+        const rangeRe = /^block\s+(\d+)\s+(?:to|-|–|—)\s+block\s+(\d+)$/i;
+        const rm = left.match(rangeRe);
+        if (rm) {
+          const a = Number(rm[1]);
+          const b = Number(rm[2]);
+          if (a > b) throw new Error("Range start > end: Block " + a + " to Block " + b);
+          const key = blockLabel(desig, a) + "-" + blockLabel(desig, b);
+          return { key: key, description: description };
+        }
+
+        // Discrete list with "and" / commas: Block 1 and Block 2  OR  Block 1, Block 2
+        const discreteRe = /^block\s+\d+(?:\s*(?:,|and)\s*block\s+\d+)+$/i;
+        const singleRe = /^block\s+(\d+)$/i;
+
+        if (discreteRe.test(left) || singleRe.test(left)) {
+          const nums = [];
+          const numRe = /block\s+(\d+)/gi;
+          let nm;
+          while ((nm = numRe.exec(left)) !== null) {
+            nums.push(Number(nm[1]));
+          }
+          if (!nums.length) {
+            throw new Error("Could not read block numbers in: " + left);
+          }
+          const key = nums.map(function (n) { return blockLabel(desig, n); }).join("&");
+          return { key: key, description: description };
+        }
+
+        throw new Error(
+          'Unrecognized block pattern: "' + left + '". Use "Block X and Block Y" or "Block X to Block Y".'
+        );
+      }
+
+      function formatBlockKey(desigRaw, rawText) {
+        const desig = normalizeDesignation(desigRaw);
+        const lines = String(rawText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+        const parsed = [];
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          if (!line.trim()) continue;
+          parsed.push(parseLine(line, desig));
+        }
+        if (!parsed.length) {
+          throw new Error("Paste at least one raw block-key line.");
+        }
+
+        const maxKey = parsed.reduce(function (mx, p) {
+          return Math.max(mx, p.key.length);
+        }, 0);
+
+        return parsed.map(function (p, idx) {
+          const isLast = idx === parsed.length - 1;
+          const pad = 2 + (maxKey - p.key.length);
+          const spaces = " ".repeat(pad);
+          const punct = isLast ? "." : ";";
+          return p.key + ":" + spaces + p.description + punct;
+        }).join("\n");
+      }
+
+      function setStatus(msg, kind) {
+        elStatus.textContent = msg || "";
+        elStatus.className = "status-msg" + (kind ? " " + kind : "");
+      }
+
+      function runFormat() {
+        try {
+          const out = formatBlockKey(elDesig.value, elRaw.value);
+          elOut.textContent = out;
+          btnCopy.disabled = !out;
+          setStatus("Formatted " + out.split("\n").length + " line(s).", "ok");
+        } catch (err) {
+          elOut.textContent = "";
+          btnCopy.disabled = true;
+          setStatus(err.message || String(err), "err");
+        }
+      }
+
+      btnFormat.addEventListener("click", runFormat);
+
+      btnClear.addEventListener("click", function () {
+        elRaw.value = "";
+        elOut.textContent = "";
+        btnCopy.disabled = true;
+        setStatus("");
+        elRaw.focus();
+      });
+
+      btnLoadSample.addEventListener("click", function () {
+        if (!elDesig.value.trim()) elDesig.value = "I";
+        elRaw.value = SAMPLE_RAW;
+        runFormat();
+      });
+
+      document.querySelectorAll(".chip[data-desig]").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          elDesig.value = chip.getAttribute("data-desig");
+          if (elRaw.value.trim()) runFormat();
+        });
+      });
+
+      btnCopy.addEventListener("click", async function () {
+        const text = elOut.textContent || "";
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus("Copied to clipboard.", "ok");
+        } catch (e) {
+          // Fallback for file:// or denied clipboard
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand("copy");
+            setStatus("Copied to clipboard.", "ok");
+          } catch (e2) {
+            setStatus("Copy failed — select the output and copy manually.", "err");
+          }
+          document.body.removeChild(ta);
+        }
+      });
+
+      elRaw.value = SAMPLE_RAW;
+      runFormat();
+    })();
+  </script>
+</body>
+</html>
