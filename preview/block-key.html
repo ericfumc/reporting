@@ -384,7 +384,7 @@
     }
 
     .desig-wrap {
-      max-width: 220px;
+      max-width: 100%;
     }
   </style>
 </head>
@@ -421,11 +421,18 @@
       <div class="field-group desig-wrap">
         <label class="section-label" for="designation">Specimen designation</label>
         <input type="text" id="designation" value="I" placeholder="I / II / III / -" autocomplete="off" spellcheck="false"/>
-        <p class="field-hint">Use <code style="font-family:var(--font-mono);font-size:0.75rem">I</code>, <code style="font-family:var(--font-mono);font-size:0.75rem">II</code>, <code style="font-family:var(--font-mono);font-size:0.75rem">III</code>, or <code style="font-family:var(--font-mono);font-size:0.75rem">-</code> / blank for no prefix.</p>
+        <p class="field-hint">Roman numerals <code style="font-family:var(--font-mono);font-size:0.75rem">I</code>–<code style="font-family:var(--font-mono);font-size:0.75rem">X</code>, or <code style="font-family:var(--font-mono);font-size:0.75rem">-</code> / blank for no prefix.</p>
         <div class="chip-row" aria-label="Quick fill designation">
           <button type="button" class="chip" data-desig="I">I</button>
           <button type="button" class="chip" data-desig="II">II</button>
           <button type="button" class="chip" data-desig="III">III</button>
+          <button type="button" class="chip" data-desig="IV">IV</button>
+          <button type="button" class="chip" data-desig="V">V</button>
+          <button type="button" class="chip" data-desig="VI">VI</button>
+          <button type="button" class="chip" data-desig="VII">VII</button>
+          <button type="button" class="chip" data-desig="VIII">VIII</button>
+          <button type="button" class="chip" data-desig="IX">IX</button>
+          <button type="button" class="chip" data-desig="X">X</button>
           <button type="button" class="chip" data-desig="-">− (empty)</button>
         </div>
       </div>
