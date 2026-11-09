@@ -30,6 +30,28 @@
       --header-h: 56px;
     }
 
+    /* Block key mode — pink tone (header/accents inherit via body.mode-block) */
+    body.mode-block {
+      --accent: #c2185b;
+      --accent-hover: #ad1457;
+      --accent-soft: #fce4ec;
+      --accent-ring: rgba(194, 24, 91, 0.35);
+      --navy: #6d214f;
+      --bg: #faf5f7;
+      --border: #e8d0da;
+      --border-strong: #d4a5b8;
+      --surface-muted: #fdf2f6;
+    }
+    body.mode-block .app-header {
+      box-shadow: 0 1px 0 rgba(194, 24, 91, 0.25);
+    }
+    body.mode-block .card {
+      border-color: var(--border);
+    }
+    body.mode-block .mode-switch {
+      background: rgba(255,255,255,0.14);
+    }
+
     *, *::before, *::after { box-sizing: border-box; }
 
     html, body {
@@ -772,7 +794,7 @@
     }
   </style>
 </head>
-<body>
+<body class="mode-format">
 
   <header class="app-header">
     <div class="app-brand">
@@ -829,21 +851,6 @@
           </div>
         </section>
 
-        <div class="actions-bar" role="toolbar" aria-label="Report actions">
-          <button type="button" id="formatBtn" class="btn-primary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
-            Format Report
-          </button>
-          <button type="button" id="copyBtn" class="btn-secondary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            Copy to clipboard
-          </button>
-          <button type="button" id="downloadBtn" class="btn-secondary">
-            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-            Download .txt
-          </button>
-        </div>
-
         <div class="io-grid">
           <section class="card" aria-labelledby="input-card-title">
             <div class="card-header">
@@ -851,6 +858,20 @@
             </div>
             <label class="section-label" for="inputText">Report text</label>
             <textarea id="inputText" placeholder="The format required is as follows:&#10;Histological type: Adenocarcinoma&#10;Tumour extent: Invades submucosa" spellcheck="false"></textarea>
+            <div class="actions-bar" role="toolbar" aria-label="Report actions" style="margin:0.85rem 0 0">
+              <button type="button" id="formatBtn" class="btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+                Format Report
+              </button>
+              <button type="button" id="copyBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                Copy to clipboard
+              </button>
+              <button type="button" id="downloadBtn" class="btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+                Download .txt
+              </button>
+            </div>
           </section>
 
           <section class="card" aria-labelledby="output-card-title">
@@ -1369,6 +1390,8 @@ function setMode(mode){
   currentMode = mode;
   const isBlock = mode === 'block';
   const isFormat = !isBlock;
+  document.body.classList.toggle('mode-block', isBlock);
+  document.body.classList.toggle('mode-format', isFormat);
   appBody.classList.toggle('mode-block', isBlock);
   appBody.classList.toggle('mode-format', isFormat);
   blockPane.hidden = !isBlock;
