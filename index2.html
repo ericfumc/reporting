@@ -1447,6 +1447,12 @@ function parseBlockLine(line, desig){
   throw new Error('Unrecognized block pattern: "' + left + '". Use "Block X and Block Y" or "Block X to Y".');
 }
 
+function capitalizeFirst(s){
+  const t = String(s || '');
+  if(!t) return t;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 function formatBlockKey(desigRaw, rawText){
   const desig = normalizeBlockDesignation(desigRaw);
   const lines = String(rawText || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
@@ -1459,7 +1465,7 @@ function formatBlockKey(desigRaw, rawText){
   const maxKey = parsed.reduce((mx, p) => Math.max(mx, p.key.length), 0);
   return parsed.map((p) => {
     const pad = 2 + (maxKey - p.key.length);
-    return p.key + ':' + ' '.repeat(pad) + p.description + '.';
+    return p.key + ':' + ' '.repeat(pad) + capitalizeFirst(p.description) + '.';
   }).join('\n');
 }
 

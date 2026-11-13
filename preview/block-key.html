@@ -560,6 +560,12 @@
         );
       }
 
+      function capitalizeFirst(s) {
+        const t = String(s || "");
+        if (!t) return t;
+        return t.charAt(0).toUpperCase() + t.slice(1);
+      }
+
       function formatBlockKey(desigRaw, rawText) {
         const desig = normalizeDesignation(desigRaw);
         const lines = String(rawText || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
@@ -580,7 +586,7 @@
         return parsed.map(function (p) {
           const pad = 2 + (maxKey - p.key.length);
           const spaces = " ".repeat(pad);
-          return p.key + ":" + spaces + p.description + ".";
+          return p.key + ":" + spaces + capitalizeFirst(p.description) + ".";
         }).join("\n");
       }
 
