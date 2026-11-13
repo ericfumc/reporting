@@ -469,10 +469,11 @@
         <h2 class="card-title">Rules (draft)</h2>
       </div>
       <ul class="rules">
-        <li>Discrete: <code>Block 1 and Block 2: ABC</code> → <code>(I-1)&amp;(I-2):  ABC;</code></li>
-        <li>Range: <code>Block 3 to Block 6: EFG</code> → <code>(I-3)-(I-6):  EFG.</code></li>
-        <li>Last line ends with <code>.</code>; earlier lines with <code>;</code></li>
-        <li>Descriptions aligned; shortest gap before the text after <code>:</code> is two spaces</li>
+        <li>Discrete: <code>Block 1 and Block 2: ABC</code> → <code>(I-1)&amp;(I-2):  ABC.</code></li>
+        <li>Range: <code>Block 3 to 6 -</code> or <code>Block 3 to Block 6:</code> → <code>(I-3)-(I-6):  EFG.</code></li>
+        <li>Each line ends with <code>.</code></li>
+        <li>Description may follow <code>:</code> or <code>-</code>; “Block” before the second number is optional</li>
+        <li>Descriptions aligned; shortest gap after <code>:</code> is two spaces</li>
         <li>Designation <code>-</code> or blank → <code>(1)&amp;(2)</code> (no letter)</li>
       </ul>
       <p class="muted" style="margin-top:0.85rem">Comment on labels, spacing, punctuation, or anything missing before we wire this into the Cancer Report Formatter.</p>
@@ -512,22 +513,27 @@
        *   Block 1: desc
        *   Block 1, Block 2 and Block 3: desc  (comma / and list → &)
        */
+      function splitBlockLine(trimmed) {
+        const colon = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
+        if (colon) return { left: colon[1].trim(), description: colon[2].trim() };
+        const blockPhrase = 'block\\s+\\d+(?:\\s*(?:,|and|to|-|–|—)\\s*(?:block\\s+)?\\d+)*';
+        const dash = trimmed.match(new RegExp('^(' + blockPhrase + ')\\s*[-–—]\\s*(.*)$', 'i'));
+        if (dash) return { left: dash[1].trim(), description: dash[2].trim() };
+        throw new Error('Each line needs a description after ":" or "-", e.g. Block 1 to 3: ABC');
+      }
+
       function parseLine(line, desig) {
         const trimmed = line.trim();
         if (!trimmed) return null;
 
-        const m = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
-        if (!m) {
-          throw new Error('Each line needs a description after ":", e.g. Block 1 and Block 2: ABC');
-        }
-        const left = m[1].trim();
-        const description = m[2].trim();
+        const parts = splitBlockLine(trimmed);
+        const left = parts.left;
+        const description = parts.description;
         if (!description) {
-          throw new Error("Missing description after colon on: " + left);
+          throw new Error('Missing description after ":" or "-" on: ' + left);
         }
 
-        // Range: Block X to Block Y  (also "Block X - Block Y")
-        const rangeRe = /^block\s+(\d+)\s+(?:to|-|–|—)\s+block\s+(\d+)$/i;
+        const rangeRe = /^block\s+(\d+)\s*(?:to|-|–|—)\s*(?:block\s+)?(\d+)$/i;
         const rm = left.match(rangeRe);
         if (rm) {
           const a = Number(rm[1]);
@@ -537,17 +543,11 @@
           return { key: key, description: description };
         }
 
-        // Discrete list with "and" / commas: Block 1 and Block 2  OR  Block 1, Block 2
-        const discreteRe = /^block\s+\d+(?:\s*(?:,|and)\s*block\s+\d+)+$/i;
+        const discreteRe = /^block\s+\d+(?:\s*(?:,|and)\s*(?:block\s+)?\d+)+$/i;
         const singleRe = /^block\s+(\d+)$/i;
 
         if (discreteRe.test(left) || singleRe.test(left)) {
-          const nums = [];
-          const numRe = /block\s+(\d+)/gi;
-          let nm;
-          while ((nm = numRe.exec(left)) !== null) {
-            nums.push(Number(nm[1]));
-          }
+          const nums = (left.match(/\d+/g) || []).map(Number);
           if (!nums.length) {
             throw new Error("Could not read block numbers in: " + left);
           }
@@ -556,7 +556,7 @@
         }
 
         throw new Error(
-          'Unrecognized block pattern: "' + left + '". Use "Block X and Block Y" or "Block X to Block Y".'
+          'Unrecognized block pattern: "' + left + '". Use "Block X and Block Y" or "Block X to Y".'
         );
       }
 
@@ -577,12 +577,10 @@
           return Math.max(mx, p.key.length);
         }, 0);
 
-        return parsed.map(function (p, idx) {
-          const isLast = idx === parsed.length - 1;
+        return parsed.map(function (p) {
           const pad = 2 + (maxKey - p.key.length);
           const spaces = " ".repeat(pad);
-          const punct = isLast ? "." : ";";
-          return p.key + ":" + spaces + p.description + punct;
+          return p.key + ":" + spaces + p.description + ".";
         }).join("\n");
       }
 
