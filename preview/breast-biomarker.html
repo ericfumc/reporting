@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Breast biomarker calculator (preview)</title>
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --surface: #ffffff;
+      --surface-muted: #f5f7f9;
+      --border: #d5dde5;
+      --border-strong: #b8c4d0;
+      --text: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #6b7a8d;
+      --accent: #0d6e6e;
+      --accent-hover: #0a5858;
+      --accent-soft: #e6f3f3;
+      --accent-ring: rgba(13, 110, 110, 0.35);
+      --navy: #1e3a5f;
+      --danger: #b42318;
+      --danger-soft: #fef3f2;
+      --ok: #0d6e6e;
+      --ok-soft: #e6f3f3;
+      --shadow: 0 1px 3px rgba(26, 35, 50, 0.06), 0 4px 12px rgba(26, 35, 50, 0.04);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --font-ui: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Liberation Mono", Menlo, monospace;
+      --header-h: 56px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app-header {
+      height: var(--header-h);
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    }
+    .app-header h1 { font-size: 1rem; font-weight: 600; margin: 0; letter-spacing: 0.01em; }
+    .app-header a { color: #c9e6e6; text-decoration: none; font-size: 0.85rem; }
+    .app-header a:hover { text-decoration: underline; }
+    .banner {
+      background: var(--accent-soft);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      padding: 0.55rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    main {
+      max-width: 820px;
+      margin: 1.25rem auto 3rem;
+      padding: 0 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.2rem 1.2rem;
+    }
+    .card-title { margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--navy); }
+    .rows { display: grid; gap: 0.7rem; }
+    .row {
+      display: grid;
+      grid-template-columns: 2.6rem 1fr 3.2rem;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .row .lab { font-size: 0.9rem; color: var(--text-secondary); font-weight: 650; }
+    .row .pct { color: var(--text-muted); font-size: 0.85rem; text-align: right; font-variant-numeric: tabular-nums; }
+    .pads {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.28rem;
+    }
+    .pads button {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 650;
+      min-width: 2rem;
+      height: 2rem;
+      padding: 0 0.3rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--navy);
+      cursor: pointer;
+    }
+    .pads button:hover { background: var(--surface-muted); }
+    .pads button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .pads button:focus-visible { outline: 2px solid var(--accent-ring); outline-offset: 1px; }
+    .total-row {
+      margin-top: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .total {
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .total.ok { background: var(--ok-soft); color: var(--ok); }
+    .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-primary, .btn-secondary {
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-secondary { background: var(--surface); color: var(--navy); border-color: var(--border-strong); }
+    .btn-secondary:hover { background: var(--surface-muted); }
+    .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 560px) { .scores { grid-template-columns: 1fr; } }
+    .score-box {
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+    }
+    .score-box .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .score-box .value { font-size: 1.85rem; font-weight: 700; color: var(--navy); line-height: 1.2; margin-top: 0.15rem; }
+    .score-box .sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem; }
+    .output-pre {
+      margin: 0.75rem 0 0;
+      padding: 0.75rem 0.85rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      min-height: 2.6rem;
+    }
+    .rules { margin: 0; padding-left: 1.15rem; color: var(--text-secondary); font-size: 0.88rem; }
+    .rules li { margin: 0.25rem 0; }
+    .rules code { font-family: var(--font-mono); font-size: 0.82rem; }
+    .status-msg { min-height: 1.2em; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .status-msg.error { color: var(--danger); }
+    .status-msg.ok { color: var(--ok); }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Breast biomarker calculator (preview)</h1>
+    <a href="https://ericfumc.github.io/reporting/index2.html">Report formatter</a>
+  </header>
+  <div class="banner">UI draft for comment. One line per intensity. Buttons 0–9 mean 0–90%; 10 means 10%. Results update when the four values sum to 100%.</div>
+  <main>
+    <section class="card" aria-labelledby="input-title">
+      <h2 class="card-title" id="input-title">% tumour by intensity</h2>
+      <div class="rows" id="rows"></div>
+      <div class="total-row">
+        <div id="totalBadge" class="total ok" aria-live="polite">Total 100%</div>
+        <div class="actions">
+          <button type="button" class="btn-secondary" id="btnFill">Fill remainder into 0</button>
+          <button type="button" class="btn-secondary" id="btnClear">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="out-title">
+      <h2 class="card-title" id="out-title">Scores</h2>
+      <div class="scores">
+        <div class="score-box">
+          <div class="label">H-score</div>
+          <div class="value" id="hValue">—</div>
+          <div class="sub" id="hSub"></div>
+        </div>
+        <div class="score-box">
+          <div class="label">Allred</div>
+          <div class="value" id="aValue">—</div>
+          <div class="sub" id="aSub"></div>
+        </div>
+      </div>
+      <pre class="output-pre" id="reportLine" aria-label="Report line"></pre>
+      <div class="actions" style="margin-top:0.7rem">
+        <button type="button" class="btn-primary" id="btnCopy" disabled>Copy</button>
+      </div>
+      <div class="status-msg" id="status"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Rules</h2>
+      <ul class="rules">
+        <li>H-score = <code>(%1×1) + (%2×2) + (%3×3)</code> (0–300)</li>
+        <li>Allred = proportion score (0–5) + intensity score (0–3)</li>
+        <li>Proportion uses % positive (<code>%1+%2+%3</code>): 0% → 0; &lt;1% → 1; 1–10% → 2; 11–33% → 3; 34–66% → 4; ≥67% → 5</li>
+        <li>Intensity = average intensity, rounded half up: <code>round(H-score ÷ % positive)</code>. If % positive is 0, intensity is 0</li>
+        <li>One line per intensity (0, 1+, 2+, 3+), with buttons 0–10</li>
+        <li>0–9 means tens of percent (2 → 20%); 10 means 10%</li>
+        <li>The four percentages must total 100%</li>
+      </ul>
+    </section>
+  </main>
+  <script>
+    (function () {
+      const keys = ["p0", "p1", "p2", "p3"];
+      const labels = { p0: "0", p1: "1+", p2: "2+", p3: "3+" };
+      const selected = { p0: 1, p1: 2, p2: 5, p3: 2 };
+
+      const totalBadge = document.getElementById("totalBadge");
+      const hValue = document.getElementById("hValue");
+      const hSub = document.getElementById("hSub");
+      const aValue = document.getElementById("aValue");
+      const aSub = document.getElementById("aSub");
+      const reportLine = document.getElementById("reportLine");
+      const btnCopy = document.getElementById("btnCopy");
+      const status = document.getElementById("status");
+      const rows = document.getElementById("rows");
+
+      function expandPct(n) {
+        if (n === null || n === undefined) return null;
+        if (Number.isInteger(n) && n >= 0 && n <= 9) return n * 10;
+        return n;
+      }
+
+      function formatNum(n) {
+        if (Number.isInteger(n)) return String(n);
+        return String(Math.round(n * 1000) / 1000);
+      }
+
+      function roundHalfUp(x) {
+        return Math.floor(x + 0.5);
+      }
+
+      function proportionScore(positive) {
+        if (positive <= 0) return 0;
+        if (positive < 1) return 1;
+        if (positive <= 10) return 2;
+        if (positive <= 33) return 3;
+        if (positive <= 66) return 4;
+        return 5;
+      }
+
+      function calculate(p0, p1, p2, p3) {
+        const hScore = p1 * 1 + p2 * 2 + p3 * 3;
+        const positive = p1 + p2 + p3;
+        const ps = proportionScore(positive);
+        const is = positive > 0 ? roundHalfUp(hScore / positive) : 0;
+        const allred = ps + is;
+        return { hScore: hScore, positive: positive, ps: ps, is: is, allred: allred };
+      }
+
+      function buildRows() {
+        keys.forEach(function (key, i) {
+          const row = document.createElement("div");
+          row.className = "row";
+          const lab = document.createElement("div");
+          lab.className = "lab";
+          lab.textContent = labels[key];
+          const pads = document.createElement("div");
+          pads.className = "pads";
+          pads.setAttribute("role", "radiogroup");
+          pads.setAttribute("aria-label", labels[key] + " percentage");
+          for (let n = 0; n <= 10; n++) {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.textContent = String(n);
+            b.dataset.key = key;
+            b.dataset.n = String(n);
+            b.setAttribute("aria-pressed", "false");
+            b.addEventListener("click", function () {
+              selected[key] = n;
+              syncPads();
+              render();
+            });
+            pads.appendChild(b);
+          }
+          const pct = document.createElement("div");
+          pct.className = "pct";
+          pct.id = "shown" + i;
+          row.appendChild(lab);
+          row.appendChild(pads);
+          row.appendChild(pct);
+          rows.appendChild(row);
+        });
+      }
+
+      function syncPads() {
+        keys.forEach(function (key, i) {
+          const val = selected[key];
+          document.querySelectorAll('.pads button[data-key="' + key + '"]').forEach(function (b) {
+            const on = val !== null && Number(b.dataset.n) === val;
+            b.classList.toggle("active", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          const shown = document.getElementById("shown" + i);
+          const pct = expandPct(val);
+          shown.textContent = (pct === null) ? "" : formatNum(pct) + "%";
+        });
+      }
+
+      function clearResults(msg, kind) {
+        hValue.textContent = "—";
+        hSub.textContent = "";
+        aValue.textContent = "—";
+        aSub.textContent = "";
+        reportLine.textContent = "";
+        btnCopy.disabled = true;
+        btnCopy.dataset.line = "";
+        status.textContent = msg || "";
+        status.className = "status-msg" + (kind ? " " + kind : "");
+      }
+
+      function render() {
+        const raws = keys.map(function (k) { return selected[k]; });
+        if (raws.some(function (v) { return v === null; })) {
+          const some = raws.some(function (v) { return v !== null; });
+          totalBadge.textContent = some ? "Select all four intensities" : "Select 0–10 for each intensity";
+          totalBadge.className = "total";
+          clearResults("Choose a button (0–10) on each line.");
+          return;
+        }
+        const vals = raws.map(expandPct);
+        const sum = vals.reduce(function (a, b) { return a + b; }, 0);
+        const ok = Math.abs(sum - 100) < 1e-6;
+        totalBadge.textContent = "Total " + formatNum(sum) + "%";
+        totalBadge.className = "total" + (ok ? " ok" : "");
+        if (!ok) {
+          const delta = 100 - sum;
+          const dir = delta > 0 ? "short by " + formatNum(delta) + "%" : "over by " + formatNum(-delta) + "%";
+          clearResults("Percentages must total 100% (" + dir + ").", "error");
+          return;
+        }
+        const r = calculate(vals[0], vals[1], vals[2], vals[3]);
+        const hShow = formatNum(r.hScore);
+        hValue.textContent = hShow;
+        hSub.textContent = formatNum(vals[1]) + "×1 + " + formatNum(vals[2]) + "×2 + " + formatNum(vals[3]) + "×3";
+        aValue.textContent = String(r.allred);
+        aSub.textContent = "PS " + r.ps + " + IS " + r.is + "  ·  % positive " + formatNum(r.positive) + "%";
+        const line = "H-score " + hShow + ". Allred " + r.allred + " (PS " + r.ps + " + IS " + r.is + ").";
+        reportLine.textContent = line;
+        btnCopy.disabled = false;
+        btnCopy.dataset.line = line;
+        status.textContent = "Ready to copy.";
+        status.className = "status-msg ok";
+      }
+
+      document.getElementById("btnFill").addEventListener("click", function () {
+        const p1 = expandPct(selected.p1) || 0;
+        const p2 = expandPct(selected.p2) || 0;
+        const p3 = expandPct(selected.p3) || 0;
+        const rest = 100 - (p1 + p2 + p3);
+        if (rest < 0 || rest > 100) return;
+        const tens = Math.round(rest / 10);
+        if (Math.abs(rest - tens * 10) > 1e-9 || tens > 10) {
+          status.textContent = "Remainder is " + formatNum(rest) + "% — Fill zero only works when that is a multiple of 10.";
+          status.className = "status-msg error";
+          return;
+        }
+        selected.p0 = tens;
+        syncPads();
+        render();
+      });
+
+      document.getElementById("btnClear").addEventListener("click", function () {
+        keys.forEach(function (k) { selected[k] = null; });
+        syncPads();
+        render();
+      });
+
+      btnCopy.addEventListener("click", function () {
+        const line = btnCopy.dataset.line || "";
+        if (!line) return;
+        function ok() {
+          status.textContent = "Copied.";
+          status.className = "status-msg ok";
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(line).then(ok).catch(function () {
+            status.textContent = "Copy failed — select the report line instead.";
+            status.className = "status-msg error";
+          });
+        } else {
+          ok();
+        }
+      });
+
+      window.biomarkerCalc = { calculate: calculate, proportionScore: proportionScore, roundHalfUp: roundHalfUp, expandPct: expandPct };
+      buildRows();
+      syncPads();
+      render();
+    })();
+  </script>
+</body>
+</html>

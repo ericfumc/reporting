@@ -132,6 +132,13 @@
       gap: 0.85rem;
       flex-shrink: 0;
     }
+    .header-link {
+      color: #c9e6e6;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .header-link:hover { text-decoration: underline; }
 
     .mode-switch {
       display: inline-flex;
@@ -807,6 +814,7 @@
       </div>
     </div>
     <div class="header-right">
+      <a class="header-link" href="breast-biomarker.html">Biomarkers</a>
       <div class="mode-switch" role="tablist" aria-label="App mode">
         <button type="button" id="modeFormatBtn" class="active" role="tab" aria-selected="true" data-mode="format">Report</button>
         <button type="button" id="modeBlockBtn" role="tab" aria-selected="false" data-mode="block">Block key</button>
