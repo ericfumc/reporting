@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Small biopsy — preview (not live)</title>
+  <style>
+    :root {
+      --bg: #f3f5fa;
+      --surface: #ffffff;
+      --surface-muted: #eef1f8;
+      --border: #cfd6e6;
+      --border-strong: #a8b4cc;
+      --text: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #6b7a8d;
+      --accent: #2c4aa0;
+      --accent-hover: #243e88;
+      --accent-soft: #e8edf8;
+      --accent-ring: rgba(44, 74, 160, 0.35);
+      --navy: #24315e;
+      --danger: #b42318;
+      --danger-soft: #fef3f2;
+      --ok: #0d6e6e;
+      --shadow-sm: 0 1px 2px rgba(26, 35, 50, 0.04);
+      --shadow: 0 1px 3px rgba(26, 35, 50, 0.06), 0 4px 12px rgba(26, 35, 50, 0.04);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --font-ui: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Liberation Mono", Menlo, monospace;
+      --header-h: 56px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-header {
+      height: var(--header-h);
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      box-shadow: 0 1px 0 rgba(36, 49, 94, 0.25);
+    }
+    .app-brand { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+    .app-brand-mark {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--accent);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .app-brand-mark svg {
+      width: 18px; height: 18px; fill: none; stroke: #fff;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .app-title {
+      font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em;
+      margin: 0; line-height: 1.2;
+    }
+    .app-subtitle {
+      font-size: 0.72rem; opacity: 0.7; font-weight: 400;
+      margin: 0; letter-spacing: 0.02em;
+    }
+    .header-right { display: flex; align-items: center; gap: 0.85rem; flex-shrink: 0; }
+    .header-link {
+      color: #c9d6f0; text-decoration: none; font-size: 0.82rem; font-weight: 600;
+    }
+    .header-link:hover { text-decoration: underline; }
+
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .mode-switch a, .mode-switch button, .mode-switch span {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 550;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      line-height: 1.3;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .mode-switch a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .mode-switch .active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      cursor: default;
+    }
+
+    .banner {
+      background: var(--accent-soft);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      padding: 0.55rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .banner strong { color: var(--navy); }
+
+    main {
+      max-width: 920px;
+      margin: 1.15rem auto 3rem;
+      padding: 0 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.2rem 1.15rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .organ-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.9rem;
+    }
+    .organ-row .section-label { margin: 0 0.35rem 0 0; }
+    .organ-btn {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 650;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--navy);
+      cursor: default;
+    }
+    .organ-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .organ-btn[disabled] {
+      opacity: 0.45;
+      cursor: not-allowed;
+      font-weight: 550;
+    }
+
+    .groups { display: grid; gap: 0.7rem; }
+    .group { min-width: 0; }
+    .section-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 650;
+      color: var(--text-secondary);
+      margin: 0 0 0.32rem;
+    }
+    .pads {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+    .pads button {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 650;
+      min-height: 2rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--navy);
+      cursor: pointer;
+    }
+    .pads button:hover { background: var(--surface-muted); }
+    .pads button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .pads button:focus-visible,
+    .btn-primary:focus-visible,
+    .btn-secondary:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
+    .malignancy-extra {
+      display: none;
+      margin-top: 0.4rem;
+    }
+    .malignancy-extra.open { display: block; }
+    .malignancy-extra input {
+      width: 100%;
+      max-width: 28rem;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+    }
+    .malignancy-extra input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-ring);
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.95rem;
+    }
+    .btn-primary, .btn-secondary {
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.85rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--navy);
+      border-color: var(--border-strong);
+    }
+    .btn-secondary:hover { background: var(--surface-muted); }
+    .btn-icon {
+      width: 16px; height: 16px; fill: none; stroke: currentColor;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .status-msg {
+      min-height: 1.2em;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .status-msg.ok { color: var(--ok); }
+    .status-msg.err { color: var(--danger); }
+
+    .output-pre {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 7.5rem;
+      color: var(--text);
+    }
+    .output-pre:empty::before {
+      content: "Click options to generate a report…";
+      color: var(--text-muted);
+      font-style: italic;
+      font-family: var(--font-ui);
+    }
+
+    .hint {
+      margin: 0.65rem 0 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .disclaimer {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .app-header { padding: 0 0.85rem; }
+      .app-subtitle { display: none; }
+      .mode-switch a, .mode-switch span { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="app-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v2H9zM7 5h10v2H7zM5 7h14v14H5z"/><path d="M9 12h6M9 16h4"/></svg>
+      </div>
+      <div>
+        <h1 class="app-title">Cancer Report Formatter</h1>
+        <p class="app-subtitle">Pathology reporting · small biopsy preview</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <a class="header-link" href="https://ericfumc.github.io/reporting/breast-biomarker.html">Biomarkers</a>
+      <div class="mode-switch" role="tablist" aria-label="App mode (preview of placement)">
+        <a href="https://ericfumc.github.io/reporting/index2.html" title="Opens the live formatter">Report</a>
+        <a href="https://ericfumc.github.io/reporting/index2.html" title="Opens the live formatter">Block key</a>
+        <span class="active" role="tab" aria-selected="true">Small biopsy</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner">
+    <strong>Standalone preview</strong> of the Small biopsy mode (the live path is the third toggle on
+    <a href="https://ericfumc.github.io/reporting/index2.html">index2.html</a>).
+    Gastric biopsy first; other organs can be added later. Click a selected button again to clear it.
+  </div>
+
+  <main>
+    <section class="card" aria-labelledby="findings-title">
+      <div class="card-header">
+        <h2 class="card-title" id="findings-title">Findings</h2>
+      </div>
+      <div class="organ-row">
+        <span class="section-label">Organ</span>
+        <button type="button" class="organ-btn active" aria-pressed="true">Gastric</button>
+        <button type="button" class="organ-btn" disabled title="Not in this preview">Colon</button>
+      </div>
+      <div class="groups" id="groups"></div>
+      <div class="malignancy-extra" id="malignancyExtra">
+        <label class="section-label" for="malignancyText">Malignancy type (optional)</label>
+        <input id="malignancyText" type="text" maxlength="120" placeholder="e.g. adenocarcinoma" autocomplete="off" spellcheck="true"/>
+      </div>
+      <div class="actions-bar">
+        <button type="button" class="btn-secondary" id="btnTypical">Load typical example</button>
+        <button type="button" class="btn-secondary" id="btnClear">Clear</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="report-title">
+      <div class="card-header">
+        <h2 class="card-title" id="report-title">Generated report</h2>
+      </div>
+      <pre id="output" class="output-pre" aria-live="polite" aria-label="Generated pathology report"></pre>
+      <div class="actions-bar" role="toolbar" aria-label="Report actions">
+        <button type="button" class="btn-primary" id="btnCopy" disabled>
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copy
+        </button>
+        <span class="status-msg" id="status" role="status"></span>
+      </div>
+      <p class="hint">Diagnosis line plus a short microscopic paragraph, in the style of the existing Gastritis small-biopsy template. Unselected items are left out.</p>
+    </section>
+
+    <p class="disclaimer">Preview for comment, created for Eric Fu. Not published. For personal use. Non-profit and not for circulation.</p>
+  </main>
+
+  <script src="gastric-biopsy-report.js"></script>
+  <script>
+    (function () {
+      const api = window.GastricBiopsyReport;
+      const groupsEl = document.getElementById("groups");
+      const outputEl = document.getElementById("output");
+      const copyBtn = document.getElementById("btnCopy");
+      const statusEl = document.getElementById("status");
+      const extraWrap = document.getElementById("malignancyExtra");
+      const extraInput = document.getElementById("malignancyText");
+
+      const state = Object.assign({}, api.EMPTY);
+
+      api.GROUPS.forEach(function (group) {
+        const row = document.createElement("div");
+        row.className = "group";
+        const lab = document.createElement("div");
+        lab.className = "section-label";
+        lab.id = "label-" + group.key;
+        lab.textContent = group.label;
+        const pads = document.createElement("div");
+        pads.className = "pads";
+        pads.setAttribute("role", "group");
+        pads.setAttribute("aria-labelledby", lab.id);
+        group.options.forEach(function (opt) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = opt.label;
+          btn.dataset.group = group.key;
+          btn.dataset.id = opt.id;
+          btn.setAttribute("aria-pressed", "false");
+          btn.addEventListener("click", function () {
+            state[group.key] = state[group.key] === opt.id ? null : opt.id;
+            if (group.key === "malignancy" && state.malignancy !== "present") {
+              state.malignancyText = "";
+              extraInput.value = "";
+            }
+            render();
+          });
+          pads.appendChild(btn);
+        });
+        row.appendChild(lab);
+        row.appendChild(pads);
+        groupsEl.appendChild(row);
+      });
+
+      function setStatus(msg, kind) {
+        statusEl.textContent = msg || "";
+        statusEl.className = "status-msg" + (kind ? " " + kind : "");
+      }
+
+      function render() {
+        groupsEl.querySelectorAll("button[data-group]").forEach(function (btn) {
+          const on = state[btn.dataset.group] === btn.dataset.id;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-pressed", String(on));
+        });
+        extraWrap.classList.toggle("open", state.malignancy === "present");
+        state.malignancyText = extraInput.value;
+        const text = api.composeReport(state);
+        outputEl.textContent = text;
+        copyBtn.disabled = !text;
+      }
+
+      extraInput.addEventListener("input", render);
+
+      document.getElementById("btnClear").addEventListener("click", function () {
+        Object.assign(state, api.EMPTY);
+        extraInput.value = "";
+        setStatus("");
+        render();
+      });
+
+      document.getElementById("btnTypical").addEventListener("click", function () {
+        Object.assign(state, api.EMPTY, {
+          mucosa: "antral",
+          chronicity: "moderate",
+          activity: "mild",
+          im: "present",
+          helicobacter: "present",
+          dysplasia: "none",
+          malignancy: "none",
+        });
+        extraInput.value = "";
+        setStatus("Typical antral example loaded");
+        render();
+      });
+
+      copyBtn.addEventListener("click", function () {
+        const text = outputEl.textContent;
+        if (!text) return;
+        function ok() { setStatus("Copied", "ok"); }
+        function fail() { setStatus("Copy failed — select the report and copy manually", "err"); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(ok).catch(fail);
+        } else {
+          fail();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
