@@ -4,6 +4,7 @@
  * Gastric small-biopsy report composer.
  * Phrases marked "from template" are taken from Eric Fu's Gastritis
  * entry under SMALL BIOPSY TEMPLATE. Other wording is drafted.
+ * This builder is for benign, non-neoplastic mucosa only.
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
@@ -12,6 +13,8 @@
     root.GastricBiopsyReport = factory();
   }
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  const GRADE_IDS = ["mild", "moderate", "marked"];
+
   const GROUPS = [
     {
       key: "mucosa",
@@ -49,7 +52,9 @@
       label: "Intestinal metaplasia",
       options: [
         { id: "none", label: "Not identified" },
-        { id: "present", label: "Present" },
+        { id: "mild", label: "Mild" },
+        { id: "moderate", label: "Moderate" },
+        { id: "marked", label: "Marked" },
       ],
     },
     {
@@ -57,25 +62,9 @@
       label: "Helicobacter organisms",
       options: [
         { id: "none", label: "Not identified" },
-        { id: "present", label: "Present" },
-      ],
-    },
-    {
-      key: "dysplasia",
-      label: "Dysplasia",
-      options: [
-        { id: "none", label: "No dysplasia" },
-        { id: "indefinite", label: "Indefinite" },
-        { id: "low", label: "Low-grade" },
-        { id: "high", label: "High-grade" },
-      ],
-    },
-    {
-      key: "malignancy",
-      label: "Malignancy",
-      options: [
-        { id: "none", label: "No malignancy" },
-        { id: "present", label: "Present" },
+        { id: "mild", label: "Mild" },
+        { id: "moderate", label: "Moderate" },
+        { id: "marked", label: "Marked" },
       ],
     },
   ];
@@ -86,13 +75,16 @@
     activity: null,
     im: null,
     helicobacter: null,
-    dysplasia: null,
-    malignancy: null,
-    malignancyText: "",
   };
 
+  const BENIGN_CLOSER = "There is no dysplasia or evidence of malignancy."; // from template; always used
+
+  function isPresentGrade(value) {
+    return GRADE_IDS.indexOf(value) !== -1;
+  }
+
   function hasAnySelection(sel) {
-    return GROUPS.some((g) => sel[g.key]) || Boolean(String(sel.malignancyText || "").trim());
+    return GROUPS.some((g) => sel[g.key]);
   }
 
   function withStop(text) {
@@ -101,21 +93,8 @@
     return /[.!?]$/.test(s) ? s : s + ".";
   }
 
-  function headerLine(mucosa) {
-    switch (mucosa) {
-      case "antral":
-        return "STOMACH, antrum, biopsy"; // site word from template ("antrum")
-      case "oxyntic":
-        return "STOMACH, body, biopsy"; // drafted site; micro uses "body-type" from template
-      case "transitional":
-        return "STOMACH, junctional, biopsy"; // "junctional" from template micro
-      case "cardiac":
-        return "STOMACH, cardia, biopsy"; // drafted
-      case "indeterminate":
-        return "STOMACH, biopsy"; // drafted
-      default:
-        return "STOMACH, biopsy"; // drafted
-    }
+  function headerLine() {
+    return "STOMACH, biopsy";
   }
 
   function mucosaPhrase(mucosa) {
@@ -175,7 +154,7 @@
   function gastritisDiagnosis(sel) {
     const chronic = isChronic(sel);
     const active = isActive(sel);
-    const hpPresent = sel.helicobacter === "present";
+    const hpPresent = isPresentGrade(sel.helicobacter);
     const hpAbsent = sel.helicobacter === "none";
 
     if (hpPresent) {
@@ -201,16 +180,8 @@
 
   function noSignificantAbnormality(sel) {
     if (sel.chronicity !== "none" || sel.activity !== "none") return false;
-    if (sel.im === "present" || sel.helicobacter === "present") return false;
-    if (sel.dysplasia && sel.dysplasia !== "none") return false;
-    if (sel.malignancy === "present") return false;
-    // Only claim this when the main negative findings were explicitly chosen.
-    return (
-      sel.im === "none" &&
-      sel.helicobacter === "none" &&
-      sel.dysplasia === "none" &&
-      sel.malignancy === "none"
-    );
+    if (isPresentGrade(sel.im) || isPresentGrade(sel.helicobacter)) return false;
+    return sel.im === "none" && sel.helicobacter === "none";
   }
 
   function diagnosisItems(sel) {
@@ -220,19 +191,7 @@
     else if (noSignificantAbnormality(sel)) {
       items.push("NO SIGNIFICANT ABNORMALITY."); // drafted
     }
-    if (sel.im === "present") items.push("INTESTINAL METAPLASIA present."); // from template
-    if (sel.dysplasia === "indefinite") items.push("INDEFINITE FOR DYSPLASIA."); // drafted
-    if (sel.dysplasia === "low") items.push("LOW-GRADE DYSPLASIA."); // drafted
-    if (sel.dysplasia === "high") items.push("HIGH-GRADE DYSPLASIA."); // drafted
-    if (sel.malignancy === "present") {
-      const extra = String(sel.malignancyText || "").trim();
-      if (extra) {
-        const inner = extra.replace(/[.]+$/, "");
-        items.push("MALIGNANCY PRESENT (" + inner + ")."); // drafted
-      } else {
-        items.push("MALIGNANCY PRESENT."); // drafted
-      }
-    }
+    if (isPresentGrade(sel.im)) items.push("INTESTINAL METAPLASIA present."); // from template; ungraded
     return items;
   }
 
@@ -249,53 +208,18 @@
 
   function imSentence(im) {
     if (im === "none") return "No intestinal metaplasia is seen."; // from template
-    if (im === "present") return "Intestinal metaplasia is present."; // drafted (diagnosis uses "present")
+    if (im === "mild") return "Mild intestinal metaplasia is seen.";
+    if (im === "moderate") return "Moderate intestinal metaplasia is seen.";
+    if (im === "marked") return "Marked intestinal metaplasia is seen.";
     return "";
   }
 
   function helicobacterSentence(helicobacter) {
     if (helicobacter === "none") return "No Helicobacter organisms are identified."; // from template
-    if (helicobacter === "present") return "Helicobacter organisms are identified."; // drafted, parallel
+    if (helicobacter === "mild") return "Mild amount of Helicobacter organisms are identified.";
+    if (helicobacter === "moderate") return "Moderate amount of Helicobacter organisms are identified.";
+    if (helicobacter === "marked") return "Marked amount of Helicobacter organisms are identified.";
     return "";
-  }
-
-  function dysplasiaSentence(dysplasia) {
-    switch (dysplasia) {
-      case "none":
-        return "";
-      case "indefinite":
-        return "The features are indefinite for dysplasia."; // drafted
-      case "low":
-        return "Low-grade dysplasia is present."; // drafted
-      case "high":
-        return "High-grade dysplasia is present."; // drafted
-      default:
-        return "";
-    }
-  }
-
-  function malignancySentence(sel) {
-    if (sel.malignancy === "present") {
-      const extra = String(sel.malignancyText || "").trim();
-      if (extra) return withStop("Malignancy is present (" + extra.replace(/[.]+$/, "") + ")");
-      return "Malignancy is present.";
-    }
-    return "";
-  }
-
-  function dysplasiaMalignancySentences(sel) {
-    const noDys = sel.dysplasia === "none";
-    const noMal = sel.malignancy === "none";
-    const dysPos = dysplasiaSentence(sel.dysplasia);
-    const malPos = malignancySentence(sel);
-
-    if (noDys && noMal) return "There is no dysplasia or evidence of malignancy."; // from template
-    const parts = [];
-    if (noDys) parts.push("There is no dysplasia."); // drafted
-    else if (dysPos) parts.push(dysPos);
-    if (noMal) parts.push("There is no evidence of malignancy."); // drafted (from template "evidence of malignancy")
-    else if (malPos) parts.push(malPos);
-    return parts.join(" ");
   }
 
   function microParagraph(sel) {
@@ -303,14 +227,14 @@
       openingSentence(sel),
       imSentence(sel.im),
       helicobacterSentence(sel.helicobacter),
-      dysplasiaMalignancySentences(sel),
+      BENIGN_CLOSER,
     ].filter(Boolean);
     return sentences.join(" ");
   }
 
   function composeDiagnosisBlock(sel) {
     const items = diagnosisItems(sel);
-    const header = headerLine(sel.mucosa);
+    const header = headerLine();
     if (!items.length) return withStop(header);
     if (items.length === 1) return header + ": - " + items[0];
     return header + ": - " + items[0] + "\n" + items.slice(1).map((item) => "- " + item).join("\n");
@@ -325,6 +249,7 @@
   return {
     GROUPS,
     EMPTY,
+    BENIGN_CLOSER,
     composeReport,
     diagnosisItems,
     microParagraph,

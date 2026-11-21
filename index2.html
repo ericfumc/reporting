@@ -391,19 +391,6 @@
       border-color: var(--accent);
       color: #fff;
     }
-    .malignancy-extra { display: none; margin-top: 0.4rem; }
-    .malignancy-extra.open { display: block; }
-    .malignancy-extra input {
-      width: 100%;
-      max-width: 28rem;
-      padding: 0.45rem 0.7rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--font-ui);
-      font-size: 0.88rem;
-    }
     .biopsy-hint {
       margin: 0.65rem 0 0;
       font-size: 0.78rem;
@@ -1118,10 +1105,6 @@
             <button type="button" class="organ-btn" disabled title="Not available yet">Colon</button>
           </div>
           <div class="biopsy-groups" id="biopsyGroups"></div>
-          <div class="malignancy-extra" id="biopsyMalignancyExtra">
-            <label class="section-label" for="biopsyMalignancyText">Malignancy type (optional)</label>
-            <input id="biopsyMalignancyText" type="text" maxlength="120" placeholder="e.g. adenocarcinoma" autocomplete="off" spellcheck="true"/>
-          </div>
           <div class="actions-bar" style="margin:0.95rem 0 0">
             <button type="button" class="btn-secondary" id="biopsyTypicalBtn">Load typical example</button>
             <button type="button" class="btn-secondary" id="biopsyClearBtn">Clear</button>
@@ -1140,7 +1123,7 @@
             </button>
             <span class="status-msg" id="biopsyStatus" role="status"></span>
           </div>
-          <p class="biopsy-hint">Diagnosis line plus a short microscopic paragraph. Unselected items are left out. The original small-biopsy templates remain available in Report mode.</p>
+          <p class="biopsy-hint">Diagnosis line plus a short microscopic paragraph for benign, non-neoplastic mucosa. Unselected items are left out. The original small-biopsy templates remain available in Report mode.</p>
         </section>
 
         <p class="disclaimer">Created by Eric Fu, 2025. For personal use. Non-profit and not for circulation.</p>
@@ -1730,8 +1713,6 @@ runBlockFormat();
   const outputEl = document.getElementById('biopsyOutput');
   const copyBtn = document.getElementById('biopsyCopyBtn');
   const statusEl = document.getElementById('biopsyStatus');
-  const extraWrap = document.getElementById('biopsyMalignancyExtra');
-  const extraInput = document.getElementById('biopsyMalignancyText');
   const typicalBtn = document.getElementById('biopsyTypicalBtn');
   const clearBtn = document.getElementById('biopsyClearBtn');
   if(!api || !groupsEl || !outputEl) return;
@@ -1757,10 +1738,6 @@ runBlockFormat();
       btn.setAttribute('aria-pressed', 'false');
       btn.addEventListener('click', function(){
         state[group.key] = state[group.key] === opt.id ? null : opt.id;
-        if(group.key === 'malignancy' && state.malignancy !== 'present'){
-          state.malignancyText = '';
-          extraInput.value = '';
-        }
         renderBiopsy();
       });
       pads.appendChild(btn);
@@ -1781,18 +1758,13 @@ runBlockFormat();
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-pressed', String(on));
     });
-    extraWrap.classList.toggle('open', state.malignancy === 'present');
-    state.malignancyText = extraInput.value;
     const text = api.composeReport(state);
     outputEl.textContent = text;
     copyBtn.disabled = !text;
   }
 
-  extraInput.addEventListener('input', renderBiopsy);
-
   clearBtn.addEventListener('click', function(){
     Object.assign(state, api.EMPTY);
-    extraInput.value = '';
     setBiopsyStatus('');
     renderBiopsy();
   });
@@ -1802,12 +1774,9 @@ runBlockFormat();
       mucosa: 'antral',
       chronicity: 'moderate',
       activity: 'mild',
-      im: 'present',
-      helicobacter: 'present',
-      dysplasia: 'none',
-      malignancy: 'none'
+      im: 'mild',
+      helicobacter: 'marked'
     });
-    extraInput.value = '';
     setBiopsyStatus('Typical antral example loaded');
     renderBiopsy();
   });
