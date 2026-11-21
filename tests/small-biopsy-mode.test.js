@@ -108,12 +108,20 @@ test("live Small biopsy UI is graded IM/HP, benign-only, and has no dysplasia/ma
   assert.doesNotMatch(src, /dysplasia:\s*['"]none['"]/);
   assert.match(src, /im:\s*'mild'/);
   assert.match(src, /helicobacter:\s*'marked'/);
+  assert.match(src, /mucosa:\s*'antral-type'/);
   const composer = fs.readFileSync(path.join(root, "js/gastric-biopsy-report.js"), "utf8");
   assert.match(composer, /Not identified.*Mild.*Moderate.*Marked/s);
   assert.match(composer, /STOMACH, biopsy/);
   assert.doesNotMatch(composer, /STOMACH, antrum, biopsy/);
   assert.doesNotMatch(composer, /key:\s*"dysplasia"/);
   assert.doesNotMatch(composer, /key:\s*"malignancy"/);
+  assert.match(composer, /id:\s*"antral-type"/);
+  assert.match(composer, /id:\s*"junctional"/);
+  assert.match(composer, /id:\s*"body-type"/);
+  assert.match(composer, /id:\s*"cardiac-type"/);
+  assert.doesNotMatch(composer, /Indeterminate|Oxyntic|Transitional|id:\s*"severe"|label:\s*"Severe"/);
+  assert.match(composer, /marked chronic inflammation/);
+  assert.match(composer, /marked activity/);
 });
 
 async function testLiveSheet() {

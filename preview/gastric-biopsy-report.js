@@ -20,11 +20,10 @@
       key: "mucosa",
       label: "Type of mucosa",
       options: [
-        { id: "antral", label: "Antral" },
-        { id: "oxyntic", label: "Oxyntic (body)" },
-        { id: "transitional", label: "Transitional" },
-        { id: "cardiac", label: "Cardiac" },
-        { id: "indeterminate", label: "Indeterminate" },
+        { id: "antral-type", label: "antral-type" },
+        { id: "junctional", label: "junctional" },
+        { id: "body-type", label: "body-type" },
+        { id: "cardiac-type", label: "cardiac-type" },
       ],
     },
     {
@@ -34,7 +33,7 @@
         { id: "none", label: "No chronic" },
         { id: "mild", label: "Mild" },
         { id: "moderate", label: "Moderate" },
-        { id: "severe", label: "Severe" },
+        { id: "marked", label: "Marked" },
       ],
     },
     {
@@ -44,7 +43,7 @@
         { id: "none", label: "No activity" },
         { id: "mild", label: "Mild" },
         { id: "moderate", label: "Moderate" },
-        { id: "severe", label: "Severe" },
+        { id: "marked", label: "Marked" },
       ],
     },
     {
@@ -87,30 +86,22 @@
     return GROUPS.some((g) => sel[g.key]);
   }
 
-  function withStop(text) {
-    const s = String(text || "").trim();
-    if (!s) return "";
-    return /[.!?]$/.test(s) ? s : s + ".";
-  }
-
   function headerLine() {
     return "STOMACH, biopsy";
   }
 
   function mucosaPhrase(mucosa) {
     switch (mucosa) {
-      case "antral":
-        return "antral gastric mucosa"; // drafted, parallel to template pattern
-      case "oxyntic":
-        return "body-type gastric mucosa"; // from template
-      case "transitional":
+      case "antral-type":
+        return "antral-type gastric mucosa";
+      case "junctional":
         return "junctional gastric mucosa"; // from template
-      case "cardiac":
-        return "cardiac gastric mucosa"; // drafted
-      case "indeterminate":
-        return "gastric mucosa of indeterminate type"; // drafted
+      case "body-type":
+        return "body-type gastric mucosa"; // from template
+      case "cardiac-type":
+        return "cardiac-type gastric mucosa";
       default:
-        return "gastric mucosa"; // drafted
+        return "gastric mucosa";
     }
   }
 
@@ -122,8 +113,8 @@
         return "mild chronic inflammation"; // from template
       case "moderate":
         return "moderate chronic inflammation"; // drafted, same pattern
-      case "severe":
-        return "severe chronic inflammation"; // drafted, same pattern
+      case "marked":
+        return "marked chronic inflammation";
       default:
         return "";
     }
@@ -137,8 +128,8 @@
         return "mild activity"; // drafted (Sydney grading; his sheet links the Sydney figure)
       case "moderate":
         return "moderate activity"; // drafted
-      case "severe":
-        return "severe activity"; // drafted
+      case "marked":
+        return "marked activity";
       default:
         return "";
     }
@@ -234,16 +225,15 @@
 
   function composeDiagnosisBlock(sel) {
     const items = diagnosisItems(sel);
-    const header = headerLine();
-    if (!items.length) return withStop(header);
-    if (items.length === 1) return header + ": - " + items[0];
-    return header + ": - " + items[0] + "\n" + items.slice(1).map((item) => "- " + item).join("\n");
+    const header = headerLine() + ":";
+    if (!items.length) return header;
+    return header + "\n" + items.map((item) => "- " + item).join("\n");
   }
 
   function composeReport(input) {
     const sel = Object.assign({}, EMPTY, input || {});
     if (!hasAnySelection(sel)) return "";
-    return composeDiagnosisBlock(sel) + "\n" + microParagraph(sel);
+    return composeDiagnosisBlock(sel) + "\n\n" + microParagraph(sel);
   }
 
   return {

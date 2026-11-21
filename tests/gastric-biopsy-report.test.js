@@ -19,32 +19,51 @@ function test(name, fn) {
   }
 }
 
+function diagnosisBlock(text) {
+  const parts = text.split("\n\n");
+  assert.ok(parts.length >= 2, "expected a blank line between diagnosis and micro: " + JSON.stringify(text));
+  return parts[0];
+}
+
+function microBlock(text) {
+  const parts = text.split("\n\n");
+  return parts.slice(1).join("\n\n");
+}
+
 test("preview composer is identical to the live js copy", () => {
   const live = fs.readFileSync(path.join(root, "js/gastric-biopsy-report.js"), "utf8");
   const preview = fs.readFileSync(path.join(root, "preview/gastric-biopsy-report.js"), "utf8");
   assert.strictEqual(preview, live);
 });
 
-test("five button groups: mucosa, chronicity, activity, graded IM, graded Helicobacter", () => {
-  const keys = GROUPS.map((g) => g.key);
-  assert.deepStrictEqual(keys, [
-    "mucosa",
-    "chronicity",
-    "activity",
-    "im",
-    "helicobacter",
-  ]);
-  assert.ok(!keys.includes("dysplasia"));
-  assert.ok(!keys.includes("malignancy"));
-  const imIds = GROUPS.find((g) => g.key === "im").options.map((o) => o.id);
-  const hpIds = GROUPS.find((g) => g.key === "helicobacter").options.map((o) => o.id);
-  assert.deepStrictEqual(imIds, ["none", "mild", "moderate", "marked"]);
-  assert.deepStrictEqual(hpIds, ["none", "mild", "moderate", "marked"]);
+test("mucosa options are antral-type, junctional, body-type, cardiac-type", () => {
+  const mucosa = GROUPS.find((g) => g.key === "mucosa");
+  assert.deepStrictEqual(
+    mucosa.options.map((o) => o.id),
+    ["antral-type", "junctional", "body-type", "cardiac-type"]
+  );
+  assert.deepStrictEqual(
+    mucosa.options.map((o) => o.label),
+    ["antral-type", "junctional", "body-type", "cardiac-type"]
+  );
+  const ids = GROUPS.map((g) => g.key);
+  assert.deepStrictEqual(ids, ["mucosa", "chronicity", "activity", "im", "helicobacter"]);
 });
 
-test("typical antral example uses graded IM/HP micro sentences and a fixed header", () => {
+test("chronicity and activity use Marked, not Severe", () => {
+  for (const key of ["chronicity", "activity"]) {
+    const ids = GROUPS.find((g) => g.key === key).options.map((o) => o.id);
+    const labels = GROUPS.find((g) => g.key === key).options.map((o) => o.label);
+    assert.deepStrictEqual(ids, ["none", "mild", "moderate", "marked"]);
+    assert.ok(labels.includes("Marked"));
+    assert.ok(!ids.includes("severe"));
+    assert.ok(!labels.includes("Severe"));
+  }
+});
+
+test("typical antral-type example uses the new header layout and labels", () => {
   const text = composeReport({
-    mucosa: "antral",
+    mucosa: "antral-type",
     chronicity: "moderate",
     activity: "mild",
     im: "mild",
@@ -53,33 +72,43 @@ test("typical antral example uses graded IM/HP micro sentences and a fixed heade
   assert.strictEqual(
     text,
     [
-      "STOMACH, biopsy: - HELICOBACTER-ASSOCIATED ACTIVE CHRONIC GASTRITIS.",
+      "STOMACH, biopsy:",
+      "- HELICOBACTER-ASSOCIATED ACTIVE CHRONIC GASTRITIS.",
       "- INTESTINAL METAPLASIA present.",
-      "Section shows antral gastric mucosa with moderate chronic inflammation and mild activity. Mild intestinal metaplasia is seen. Marked amount of Helicobacter organisms are identified. There is no dysplasia or evidence of malignancy.",
+      "",
+      "Section shows antral-type gastric mucosa with moderate chronic inflammation and mild activity. Mild intestinal metaplasia is seen. Marked amount of Helicobacter organisms are identified. There is no dysplasia or evidence of malignancy.",
     ].join("\n")
   );
 });
 
-test("diagnosis header is always STOMACH, biopsy, with mucosa type only in the micro text", () => {
+test("diagnosis header is always STOMACH, biopsy: on its own line, with mucosa type only in the micro text", () => {
   assert.strictEqual(headerLine(), "STOMACH, biopsy");
-  const sites = ["antral", "oxyntic", "transitional", "cardiac", "indeterminate"];
-  for (const mucosa of sites) {
+  const sites = {
+    "antral-type": "antral-type gastric mucosa",
+    junctional: "junctional gastric mucosa",
+    "body-type": "body-type gastric mucosa",
+    "cardiac-type": "cardiac-type gastric mucosa",
+  };
+  for (const [mucosa, phrase] of Object.entries(sites)) {
     const text = composeReport({ mucosa, chronicity: "mild" });
-    const diagnosis = text.split("\n")[0];
-    assert.ok(diagnosis.startsWith("STOMACH, biopsy"), diagnosis);
-    assert.doesNotMatch(diagnosis, /antrum|junctional|body|cardia/i);
+    const diagnosis = diagnosisBlock(text);
+    assert.ok(diagnosis.startsWith("STOMACH, biopsy:\n- "), diagnosis);
+    assert.doesNotMatch(diagnosis, /antral|junctional|body|cardia/i);
+    assert.match(microBlock(text), new RegExp("Section shows " + phrase));
   }
-  const transitional = composeReport({
-    mucosa: "transitional",
+  const junctional = composeReport({
+    mucosa: "junctional",
     chronicity: "mild",
     activity: "none",
     im: "none",
     helicobacter: "none",
   });
   assert.strictEqual(
-    transitional,
+    junctional,
     [
-      "STOMACH, biopsy: - CHRONIC GASTRITIS.",
+      "STOMACH, biopsy:",
+      "- CHRONIC GASTRITIS.",
+      "",
       "Section shows junctional gastric mucosa with mild chronic inflammation and no activity. No intestinal metaplasia is seen. No Helicobacter organisms are identified. There is no dysplasia or evidence of malignancy.",
     ].join("\n")
   );
@@ -89,13 +118,12 @@ test("grades stay in the microscopic text only, never on the diagnosis line", ()
   const cases = [
     { chronicity: "mild", activity: "none", helicobacter: "none", im: "none" },
     { chronicity: "moderate", activity: "mild", helicobacter: "marked", im: "mild" },
-    { chronicity: "severe", activity: "severe", helicobacter: "moderate", im: "marked" },
+    { chronicity: "marked", activity: "marked", helicobacter: "moderate", im: "marked" },
   ];
   for (const sel of cases) {
-    const text = composeReport(Object.assign({ mucosa: "antral" }, sel));
-    const diagnosisLines = text.split("\n").filter((line) => !line.startsWith("Section shows"));
-    const diagnosis = diagnosisLines.join("\n");
-    const micro = text.split("\n").slice(-1)[0];
+    const text = composeReport(Object.assign({ mucosa: "antral-type" }, sel));
+    const diagnosis = diagnosisBlock(text);
+    const micro = microBlock(text);
     assert.doesNotMatch(diagnosis, /mild|moderate|severe|marked/i, "grade leaked into diagnosis: " + diagnosis);
     if (sel.im && sel.im !== "none") {
       assert.match(diagnosis, /INTESTINAL METAPLASIA present\./);
@@ -106,31 +134,42 @@ test("grades stay in the microscopic text only, never on the diagnosis line", ()
   }
 });
 
+test("marked chronicity and activity use marked, not severe", () => {
+  const text = composeReport({
+    mucosa: "body-type",
+    chronicity: "marked",
+    activity: "marked",
+  });
+  assert.match(microBlock(text), /with marked chronic inflammation and marked activity\./);
+  assert.doesNotMatch(text, /severe/i);
+});
+
 test("graded IM and Helicobacter microscopic sentences", () => {
-  const mildBoth = composeReport({ mucosa: "antral", im: "mild", helicobacter: "mild" });
+  const mildBoth = composeReport({ mucosa: "antral-type", im: "mild", helicobacter: "mild" });
   assert.match(mildBoth, /Mild intestinal metaplasia is seen\./);
   assert.match(mildBoth, /Mild amount of Helicobacter organisms are identified\./);
 
-  const moderate = composeReport({ mucosa: "antral", im: "moderate", helicobacter: "moderate" });
+  const moderate = composeReport({ mucosa: "antral-type", im: "moderate", helicobacter: "moderate" });
   assert.match(moderate, /Moderate intestinal metaplasia is seen\./);
   assert.match(moderate, /Moderate amount of Helicobacter organisms are identified\./);
 
-  const marked = composeReport({ mucosa: "antral", im: "marked", helicobacter: "marked" });
+  const marked = composeReport({ mucosa: "antral-type", im: "marked", helicobacter: "marked" });
   assert.match(marked, /Marked intestinal metaplasia is seen\./);
   assert.match(marked, /Marked amount of Helicobacter organisms are identified\./);
 
-  const absent = composeReport({ mucosa: "antral", im: "none", helicobacter: "none" });
+  const absent = composeReport({ mucosa: "antral-type", im: "none", helicobacter: "none" });
   assert.match(absent, /No intestinal metaplasia is seen\./);
   assert.match(absent, /No Helicobacter organisms are identified\./);
 });
 
 test("unselected IM/HP fields are omitted, but the benign closer is always present", () => {
-  const text = composeReport({ mucosa: "antral" });
+  const text = composeReport({ mucosa: "antral-type" });
   assert.strictEqual(
     text,
     [
-      "STOMACH, biopsy.",
-      "Section shows antral gastric mucosa. There is no dysplasia or evidence of malignancy.",
+      "STOMACH, biopsy:",
+      "",
+      "Section shows antral-type gastric mucosa. There is no dysplasia or evidence of malignancy.",
     ].join("\n")
   );
   assert.doesNotMatch(text, /intestinal metaplasia/i);
@@ -146,7 +185,7 @@ test("empty selection yields an empty report", () => {
 
 test("explicitly negative findings yield a drafted no-significant-abnormality line", () => {
   const text = composeReport({
-    mucosa: "oxyntic",
+    mucosa: "body-type",
     chronicity: "none",
     activity: "none",
     im: "none",
@@ -155,7 +194,9 @@ test("explicitly negative findings yield a drafted no-significant-abnormality li
   assert.strictEqual(
     text,
     [
-      "STOMACH, biopsy: - NO SIGNIFICANT ABNORMALITY.",
+      "STOMACH, biopsy:",
+      "- NO SIGNIFICANT ABNORMALITY.",
+      "",
       "Section shows body-type gastric mucosa with no chronic inflammation and no activity. No intestinal metaplasia is seen. No Helicobacter organisms are identified. There is no dysplasia or evidence of malignancy.",
     ].join("\n")
   );
@@ -163,34 +204,41 @@ test("explicitly negative findings yield a drafted no-significant-abnormality li
 
 test("active chronic gastritis, Helicobacter not identified, uses the template diagnosis", () => {
   const text = composeReport({
-    mucosa: "antral",
+    mucosa: "antral-type",
     chronicity: "mild",
     activity: "moderate",
     helicobacter: "none",
   });
-  assert.match(text, /STOMACH, biopsy: - ACTIVE CHRONIC GASTRITIS, negative for Helicobacter\./);
-  assert.match(text, /with mild chronic inflammation and moderate activity\./);
-  assert.match(text, /No Helicobacter organisms are identified\./);
+  assert.strictEqual(
+    diagnosisBlock(text),
+    ["STOMACH, biopsy:", "- ACTIVE CHRONIC GASTRITIS, negative for Helicobacter."].join("\n")
+  );
+  assert.match(microBlock(text), /with mild chronic inflammation and moderate activity\./);
+  assert.match(microBlock(text), /No Helicobacter organisms are identified\./);
   assert.doesNotMatch(text, /intestinal metaplasia/);
 });
 
 test("unselected Helicobacter does not claim organisms are absent in the diagnosis", () => {
   const text = composeReport({
-    mucosa: "cardiac",
-    chronicity: "severe",
+    mucosa: "cardiac-type",
+    chronicity: "marked",
     activity: "mild",
   });
-  assert.match(text, /STOMACH, biopsy: - ACTIVE CHRONIC GASTRITIS\.$/m);
+  assert.strictEqual(
+    diagnosisBlock(text),
+    ["STOMACH, biopsy:", "- ACTIVE CHRONIC GASTRITIS."].join("\n")
+  );
   assert.doesNotMatch(text, /negative for Helicobacter/);
   assert.doesNotMatch(text, /Helicobacter organisms/);
+  assert.match(microBlock(text), /cardiac-type gastric mucosa with marked chronic inflammation and mild activity/);
 });
 
 test("dysplasia and malignancy are not selectable; closer is fixed", () => {
-  const text = composeReport({ mucosa: "indeterminate", chronicity: "mild" });
+  const text = composeReport({ mucosa: "junctional", chronicity: "mild" });
   assert.match(text, /There is no dysplasia or evidence of malignancy\.$/);
   assert.doesNotMatch(text, /INDEFINITE FOR DYSPLASIA|LOW-GRADE DYSPLASIA|HIGH-GRADE DYSPLASIA|MALIGNANCY PRESENT/);
   const ignored = composeReport({
-    mucosa: "antral",
+    mucosa: "antral-type",
     dysplasia: "high",
     malignancy: "present",
     malignancyText: "adenocarcinoma.",
@@ -198,8 +246,9 @@ test("dysplasia and malignancy are not selectable; closer is fixed", () => {
   assert.strictEqual(
     ignored,
     [
-      "STOMACH, biopsy.",
-      "Section shows antral gastric mucosa. There is no dysplasia or evidence of malignancy.",
+      "STOMACH, biopsy:",
+      "",
+      "Section shows antral-type gastric mucosa. There is no dysplasia or evidence of malignancy.",
     ].join("\n")
   );
 });
