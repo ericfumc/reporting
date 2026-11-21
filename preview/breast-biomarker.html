@@ -175,7 +175,7 @@
     <h1>Breast biomarker calculator (preview)</h1>
     <a href="https://ericfumc.github.io/reporting/index2.html">Report formatter</a>
   </header>
-  <div class="banner">UI draft for comment. One line per intensity. Buttons 0–9 mean 0–90%; 10 means 10%. Results update when the four values sum to 100%.</div>
+  <div class="banner">UI draft for comment. One line per intensity. Buttons 0–9 mean 0–90%. Results update when the four values sum to 100%.</div>
   <main>
     <section class="card" aria-labelledby="input-title">
       <h2 class="card-title" id="input-title">% tumour by intensity</h2>
@@ -217,8 +217,8 @@
         <li>Allred = proportion score (0–5) + intensity score (0–3)</li>
         <li>Proportion uses % positive (<code>%1+%2+%3</code>): 0% → 0; &lt;1% → 1; 1–10% → 2; 11–33% → 3; 34–66% → 4; ≥67% → 5</li>
         <li>Intensity = average intensity, rounded half up: <code>round(H-score ÷ % positive)</code>. If % positive is 0, intensity is 0</li>
-        <li>One line per intensity (0, 1+, 2+, 3+), with buttons 0–10</li>
-        <li>0–9 means tens of percent (2 → 20%); 10 means 10%</li>
+        <li>One line per intensity (0, 1+, 2+, 3+), with buttons 0–9</li>
+        <li>0–9 means tens of percent (2 → 20%; 1 → 10%)</li>
         <li>The four percentages must total 100%</li>
       </ul>
     </section>
@@ -283,7 +283,7 @@
           pads.className = "pads";
           pads.setAttribute("role", "radiogroup");
           pads.setAttribute("aria-label", labels[key] + " percentage");
-          for (let n = 0; n <= 10; n++) {
+          for (let n = 0; n <= 9; n++) {
             const b = document.createElement("button");
             b.type = "button";
             b.textContent = String(n);
@@ -337,9 +337,9 @@
         const raws = keys.map(function (k) { return selected[k]; });
         if (raws.some(function (v) { return v === null; })) {
           const some = raws.some(function (v) { return v !== null; });
-          totalBadge.textContent = some ? "Select all four intensities" : "Select 0–10 for each intensity";
+          totalBadge.textContent = some ? "Select all four intensities" : "Select 0–9 for each intensity";
           totalBadge.className = "total";
-          clearResults("Choose a button (0–10) on each line.");
+          clearResults("Choose a button (0–9) on each line.");
           return;
         }
         const vals = raws.map(expandPct);
@@ -367,19 +367,37 @@
         status.className = "status-msg ok";
       }
 
-      document.getElementById("btnFill").addEventListener("click", function () {
-        const p1 = expandPct(selected.p1) || 0;
-        const p2 = expandPct(selected.p2) || 0;
-        const p3 = expandPct(selected.p3) || 0;
+      function fillRemainderIntoZero(state) {
+        const p1 = expandPct(state.p1) || 0;
+        const p2 = expandPct(state.p2) || 0;
+        const p3 = expandPct(state.p3) || 0;
         const rest = 100 - (p1 + p2 + p3);
-        if (rest < 0 || rest > 100) return;
+        if (rest < 0 || rest > 100) {
+          return { ok: false, rest: rest, shorthand: null, message: null };
+        }
         const tens = Math.round(rest / 10);
-        if (Math.abs(rest - tens * 10) > 1e-9 || tens > 10) {
-          status.textContent = "Remainder is " + formatNum(rest) + "% — Fill zero only works when that is a multiple of 10.";
-          status.className = "status-msg error";
+        // Buttons are 0–9 only (0–90%). Never store 10, which has no button.
+        if (Math.abs(rest - tens * 10) > 1e-9 || tens < 0 || tens > 9) {
+          return {
+            ok: false,
+            rest: rest,
+            shorthand: null,
+            message: "Remainder is " + formatNum(rest) + "% — Fill zero only works when that is a multiple of 10 from 0–90%."
+          };
+        }
+        return { ok: true, rest: rest, shorthand: tens, message: null };
+      }
+
+      document.getElementById("btnFill").addEventListener("click", function () {
+        const result = fillRemainderIntoZero(selected);
+        if (!result.ok) {
+          if (result.message) {
+            status.textContent = result.message;
+            status.className = "status-msg error";
+          }
           return;
         }
-        selected.p0 = tens;
+        selected.p0 = result.shorthand;
         syncPads();
         render();
       });
@@ -407,7 +425,7 @@
         }
       });
 
-      window.biomarkerCalc = { calculate: calculate, proportionScore: proportionScore, roundHalfUp: roundHalfUp, expandPct: expandPct };
+      window.biomarkerCalc = { calculate: calculate, proportionScore: proportionScore, roundHalfUp: roundHalfUp, expandPct: expandPct, fillRemainderIntoZero: fillRemainderIntoZero };
       buildRows();
       syncPads();
       render();
