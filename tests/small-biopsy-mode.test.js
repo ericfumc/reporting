@@ -102,6 +102,20 @@ test("index2.html does not delete or hide the original small-biopsy templates", 
   );
 });
 
+test("live Small biopsy UI is graded IM/HP, benign-only, and has no dysplasia/malignancy controls", () => {
+  assert.match(src, /id="biopsyGroups"/);
+  assert.doesNotMatch(src, /biopsyMalignancyExtra|biopsyMalignancyText|malignancy-extra/);
+  assert.doesNotMatch(src, /dysplasia:\s*['"]none['"]/);
+  assert.match(src, /im:\s*'mild'/);
+  assert.match(src, /helicobacter:\s*'marked'/);
+  const composer = fs.readFileSync(path.join(root, "js/gastric-biopsy-report.js"), "utf8");
+  assert.match(composer, /Not identified.*Mild.*Moderate.*Marked/s);
+  assert.match(composer, /STOMACH, biopsy/);
+  assert.doesNotMatch(composer, /STOMACH, antrum, biopsy/);
+  assert.doesNotMatch(composer, /key:\s*"dysplasia"/);
+  assert.doesNotMatch(composer, /key:\s*"malignancy"/);
+});
+
 async function testLiveSheet() {
   const names = [
     "parseCSV",

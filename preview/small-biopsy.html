@@ -215,28 +215,6 @@
       box-shadow: 0 0 0 3px var(--accent-ring);
     }
 
-    .malignancy-extra {
-      display: none;
-      margin-top: 0.4rem;
-    }
-    .malignancy-extra.open { display: block; }
-    .malignancy-extra input {
-      width: 100%;
-      max-width: 28rem;
-      padding: 0.45rem 0.7rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--font-ui);
-      font-size: 0.88rem;
-    }
-    .malignancy-extra input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-ring);
-    }
-
     .actions-bar {
       display: flex;
       flex-wrap: wrap;
@@ -359,10 +337,6 @@
         <button type="button" class="organ-btn" disabled title="Not in this preview">Colon</button>
       </div>
       <div class="groups" id="groups"></div>
-      <div class="malignancy-extra" id="malignancyExtra">
-        <label class="section-label" for="malignancyText">Malignancy type (optional)</label>
-        <input id="malignancyText" type="text" maxlength="120" placeholder="e.g. adenocarcinoma" autocomplete="off" spellcheck="true"/>
-      </div>
       <div class="actions-bar">
         <button type="button" class="btn-secondary" id="btnTypical">Load typical example</button>
         <button type="button" class="btn-secondary" id="btnClear">Clear</button>
@@ -381,7 +355,7 @@
         </button>
         <span class="status-msg" id="status" role="status"></span>
       </div>
-      <p class="hint">Diagnosis line plus a short microscopic paragraph, in the style of the existing Gastritis small-biopsy template. Unselected items are left out.</p>
+      <p class="hint">Diagnosis line plus a short microscopic paragraph for benign, non-neoplastic mucosa, in the style of the existing Gastritis small-biopsy template. Unselected items are left out.</p>
     </section>
 
     <p class="disclaimer">Preview for comment, created for Eric Fu. Not published. For personal use. Non-profit and not for circulation.</p>
@@ -395,8 +369,6 @@
       const outputEl = document.getElementById("output");
       const copyBtn = document.getElementById("btnCopy");
       const statusEl = document.getElementById("status");
-      const extraWrap = document.getElementById("malignancyExtra");
-      const extraInput = document.getElementById("malignancyText");
 
       const state = Object.assign({}, api.EMPTY);
 
@@ -420,10 +392,6 @@
           btn.setAttribute("aria-pressed", "false");
           btn.addEventListener("click", function () {
             state[group.key] = state[group.key] === opt.id ? null : opt.id;
-            if (group.key === "malignancy" && state.malignancy !== "present") {
-              state.malignancyText = "";
-              extraInput.value = "";
-            }
             render();
           });
           pads.appendChild(btn);
@@ -444,18 +412,13 @@
           btn.classList.toggle("active", on);
           btn.setAttribute("aria-pressed", String(on));
         });
-        extraWrap.classList.toggle("open", state.malignancy === "present");
-        state.malignancyText = extraInput.value;
         const text = api.composeReport(state);
         outputEl.textContent = text;
         copyBtn.disabled = !text;
       }
 
-      extraInput.addEventListener("input", render);
-
       document.getElementById("btnClear").addEventListener("click", function () {
         Object.assign(state, api.EMPTY);
-        extraInput.value = "";
         setStatus("");
         render();
       });
@@ -465,12 +428,9 @@
           mucosa: "antral",
           chronicity: "moderate",
           activity: "mild",
-          im: "present",
-          helicobacter: "present",
-          dysplasia: "none",
-          malignancy: "none",
+          im: "mild",
+          helicobacter: "marked",
         });
-        extraInput.value = "";
         setStatus("Typical antral example loaded");
         render();
       });
