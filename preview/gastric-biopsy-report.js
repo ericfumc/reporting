@@ -76,6 +76,14 @@
     helicobacter: null,
   };
 
+  const TYPICAL = {
+    mucosa: "antral-type",
+    chronicity: "mild",
+    activity: "none",
+    im: "none",
+    helicobacter: "none",
+  };
+
   const BENIGN_CLOSER = "There is no dysplasia or evidence of malignancy."; // from template; always used
 
   function isPresentGrade(value) {
@@ -239,6 +247,7 @@
   return {
     GROUPS,
     EMPTY,
+    TYPICAL,
     BENIGN_CLOSER,
     composeReport,
     diagnosisItems,

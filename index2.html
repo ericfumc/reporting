@@ -1717,7 +1717,7 @@ runBlockFormat();
   const clearBtn = document.getElementById('biopsyClearBtn');
   if(!api || !groupsEl || !outputEl) return;
 
-  const state = Object.assign({}, api.EMPTY);
+  const state = Object.assign({}, api.EMPTY, api.TYPICAL);
 
   api.GROUPS.forEach(function(group){
     const row = document.createElement('div');
@@ -1770,14 +1770,8 @@ runBlockFormat();
   });
 
   typicalBtn.addEventListener('click', function(){
-    Object.assign(state, api.EMPTY, {
-      mucosa: 'antral-type',
-      chronicity: 'moderate',
-      activity: 'mild',
-      im: 'mild',
-      helicobacter: 'marked'
-    });
-    setBiopsyStatus('Typical antral example loaded');
+    Object.assign(state, api.EMPTY, api.TYPICAL);
+    setBiopsyStatus('Typical mild chronic gastritis example loaded');
     renderBiopsy();
   });
 

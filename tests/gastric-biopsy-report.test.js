@@ -3,7 +3,7 @@
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
-const { composeReport, GROUPS, headerLine } = require("../js/gastric-biopsy-report.js");
+const { composeReport, GROUPS, headerLine, TYPICAL, EMPTY } = require("../js/gastric-biopsy-report.js");
 
 const root = path.resolve(__dirname, "..");
 
@@ -61,7 +61,28 @@ test("chronicity and activity use Marked, not Severe", () => {
   }
 });
 
-test("typical antral-type example uses the new header layout and labels", () => {
+test("typical / default selection is mild chronic gastritis", () => {
+  assert.deepStrictEqual(TYPICAL, {
+    mucosa: "antral-type",
+    chronicity: "mild",
+    activity: "none",
+    im: "none",
+    helicobacter: "none",
+  });
+  const text = composeReport(TYPICAL);
+  assert.strictEqual(
+    text,
+    [
+      "STOMACH, biopsy:",
+      "- CHRONIC GASTRITIS.",
+      "",
+      "Section shows antral-type gastric mucosa with mild chronic inflammation and no activity. No intestinal metaplasia is seen. No Helicobacter organisms are identified. There is no dysplasia or evidence of malignancy.",
+    ].join("\n")
+  );
+  assert.strictEqual(composeReport(EMPTY), "");
+});
+
+test("active chronic gastritis with IM and Helicobacter still composes correctly", () => {
   const text = composeReport({
     mucosa: "antral-type",
     chronicity: "moderate",
